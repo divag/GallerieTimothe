@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['photo']) && isset($_POST['login']) && isset($_POST['commentaire'])){	$fichier = addComment($_POST["photo"], $_POST["login"], $_POST["commentaire"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["photo"].$_POST["login"].$_POST["commentaire"]."';";}?>

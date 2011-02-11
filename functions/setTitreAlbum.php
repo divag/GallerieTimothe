@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['album']) && isset($_POST['titre'])){	$fichier = setTitreAlbum($_POST["album"], $_POST["titre"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["photo"].$_POST["login"].$_POST["commentaire"]."';";}?>

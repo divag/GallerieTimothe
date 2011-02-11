@@ -1,0 +1,133 @@
+.zipLink, .mailLink {
+    border-width:0px;	
+}
+.zipLink img, .mailLink img {
+    border-width:0px;	
+}
+.zipLink span, .mailLink span {
+	position:relative;
+	top:-3px;
+	padding-left:5px;
+}
+.pageLink {
+	font-weight:bolder;
+}
+.prev {
+	padding-right:7px;
+}
+.next {
+	padding-left:2px;
+}
+.lastUpdate {
+	width:100%;
+	text-align:right;
+}
+
+
+
+#container div.header {
+	float: left;
+}
+
+#container div.links {
+	float: right;
+	text-align: right;
+}
+
+#container div.links img {
+	display: none;
+}
+
+
+.orange{
+	color: #f70;
+}
+.gray{
+	color: #bbb;
+}
+
+.comment-login {
+	/*float: left;*/
+	font-size: 7pt;
+}
+
+.comment-date {
+	/*float: right;*/
+	font-size: 7pt;
+}
+
+.comment-clear {
+	clear: both;
+}
+
+.clear {
+	clear: both;
+}
+.new {
+	border-width:1px;
+	border-style:solid;
+	border-color:red;
+	margin:-1px;
+}
+.no-description {
+	border-width:1px;
+	border-style:solid;
+	border-color:orange;
+	margin:-1px;
+}
+.have-description {
+	border-width:1px;
+	border-style:solid;
+	border-color:green;
+	margin:-1px;
+}
+.new img, .no-description img, .have-description img {
+}
+
+.add-comment {
+	width:100%;
+}
+
+input {
+	width:100%;
+	background-color: rgb(44, 44, 44);
+	color: rgb(201, 201, 201);
+	border: 1px solid rgb(69, 69, 69);
+	margin-bottom:0px;
+	padding-left:2px;
+	padding-right:2px;
+}
+textarea {
+	width:100%;
+	background-color: rgb(44, 44, 44);
+	color: rgb(201, 201, 201);
+	border: 1px solid rgb(69, 69, 69);
+	margin-top:2px;
+	margin-bottom: 2px;
+	/*border-top-width:0px;*/
+	padding:2px;
+}
+input.button:hover {
+
+}
+input.button {
+	padding:2px;
+	cursor:pointer;
+	color:white;
+}
+
+.comment-text {
+}
+
+.error {
+	border-color:red;
+}
+
+.comment-content {
+	border: 1px dashed rgb(49, 48, 48);
+	padding: 2px 11px 4px 11px;
+	width: 100%;
+	background-color: rgb(8, 8, 8);
+}
+
+
