@@ -40,250 +40,281 @@ $admin = (isset($_GET['admin']));
 		?>
 		<div id="page">
 			<div id="container">
-				<div class="header">
-					<h1><a href="">Les photos du petit Timoth&eacute;</a></h1>
-					<div id="lastUpdate">
-						Mis à jour le <?php echo $dateLastAlbum ?> : <span>Ajout de l'album <b><?php echo $titreLastAlbum ?></b></span>
+				<div id="add-album" style="display:none;">
+					Ajout d'album :
+					<br /> - Ajout et tri des fichiers
+					<br />
+					<br />
+					<input type="button" class="button" value="OK" onclick="displaySite();" />
+				</div>
+				<div id="site">
+					<?php
+						if ($admin)
+						{
+							echo "<div style=\"padding-bottom:15px;\">";
+							echo "<input type=\"button\" class=\"button\" value=\"Ajouter un nouvel album\" onclick=\"displayAddAlbum();\" />";
+							echo "</div>";
+						}
+					?>
+					<div class="header">
+						<h1><a href="">Les photos du petit Timoth&eacute;</a></h1>
+						<div id="lastUpdate">
+							Mis à jour le <?php echo $dateLastAlbum ?> : <span>Ajout de l'album <b><?php echo $titreLastAlbum ?></b></span>
+						</div>
+						<br />
 					</div>
-					<br />
-				</div>
-				<div class="links">
-					<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
-					<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
-					<span id="spanMailOk" style="display:none;">
-						Adresse enregistrée : <span id="spanMailAdresse"></span><br />
-						<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
-					</span>
-					<br />
-					<a href="photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
-				</div>
-				<br class="clear" />
-				<!-- <h2>Nom de la gallerie...</h2> -->
-				<!-- Start Advanced Gallery Html Containers -->				
-				<div class="navigation-container">
-					<div id="thumbs" class="navigation">
-						<a class="pageLink prev" href="#" title="Page précédente"><span>&lt;&lt;</span></a>
-					
-						<ul class="thumbs noscript">
-							<?php
-							
-								$idAlbum = $idLastAlbum;
-								$album = $lastAlbum;
-								$dateAlbum = $lastAlbum['date'];
-								$titreAlbum = $lastAlbum['titre'];
+					<div class="links">
+						<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
+						<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
+						<span id="spanMailOk" style="display:none;">
+							Adresse enregistrée : <span id="spanMailAdresse"></span><br />
+							<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
+						</span>
+						<br />
+						<a href="photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
+					</div>
+					<br class="clear" />
+					<!-- <h2>Nom de la gallerie...</h2> -->
+					<!-- Start Advanced Gallery Html Containers -->				
+					<div class="navigation-container">
+						<div id="thumbs" class="navigation">
+							<a class="pageLink prev" href="#" title="Page précédente"><span>&lt;&lt;</span></a>
+						
+							<ul class="thumbs noscript">
+								<?php
 								
-								$idTempAlbum = $idLastAlbum;
-								$i = 0;
-								
-								foreach ($listePhotos as $photo)
-								{
-									$idAlbum = substr($photo, 0, 3);
-									$idPhoto = substr($photo, 4);
-									if ($idAlbum != $idTempAlbum)
-									{
-										$album = getAlbumInfos($idAlbum);
-										$dateAlbum = $album['date'];
-										$titreAlbum = $album['titre'];
-										
-										$idTempAlbum = $idAlbum;
-									}
-								
-									$descriptionPhoto = getDescriptionPhoto($photo);
-								
-									echo "<li>";
-									echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
-									echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
-									echo "</a>";
-									echo "<div class=\"caption right-part\">";
-									echo "	<div class=\"image-title\">".$titreAlbum."</div>";
-
-									if ($admin)
-									{
-										echo "<br /><textarea id=\"titre-text-".$idAlbum."\" class=\"comment-text\" rows=\"1\">".str_replace("<br />", "\n", $titreAlbum)."</textarea><br />";
-										echo "<input type=\"button\" class=\"button\" value=\"Modifier le titre de l'album\" onclick=\"setTitreAlbum('".$idAlbum."');\" />";
-									}
+									$idAlbum = $idLastAlbum;
+									$album = $lastAlbum;
+									$dateAlbum = $lastAlbum['date'];
+									$titreAlbum = $lastAlbum['titre'];
 									
-									/**/
-									if (trim($descriptionPhoto) != "")
-										echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
-									/**/
-									if ($admin)
+									$idTempAlbum = $idLastAlbum;
+									$i = 0;
+									
+									foreach ($listePhotos as $photo)
 									{
-										echo "<br /><textarea id=\"description-text-".$idPhoto."\" class=\"comment-text\" rows=\"2\">".str_replace("<br />", "\n", $descriptionPhoto)."</textarea><br />";
-										echo "<input type=\"button\" class=\"button\" value=\"Modifier la description\" onclick=\"setDescriptionPhoto('".$idPhoto."');\" />";
-									}
-									/*
-									else
-									{
+										$idAlbum = substr($photo, 0, 3);
+										$idPhoto = substr($photo, 4);
+										if ($idAlbum != $idTempAlbum)
+										{
+											$album = getAlbumInfos($idAlbum);
+											$dateAlbum = $album['date'];
+											$titreAlbum = $album['titre'];
+											
+											$idTempAlbum = $idAlbum;
+										}
+									
+										$descriptionPhoto = getDescriptionPhoto($photo);
+									
+										echo "<li>";
+										echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+										echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
+										echo "</a>";
+										echo "<div class=\"caption right-part\">";
+										echo "	<div class=\"image-title\">".$titreAlbum."</div>";
+
+										if ($admin)
+										{
+											echo "<br /><textarea id=\"titre-text-".$idAlbum."\" class=\"comment-text\" rows=\"1\">".str_replace("<br />", "\n", $titreAlbum)."</textarea><br />";
+											echo "<input type=\"button\" class=\"button\" value=\"Modifier le titre de l'album\" onclick=\"setTitreAlbum('".$idAlbum."');\" />";
+										}
+										
+										/**/
 										if (trim($descriptionPhoto) != "")
 											echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
-									}
-									*/
+										/**/
+										if ($admin)
+										{
+											echo "<br /><textarea id=\"description-text-".$idPhoto."\" class=\"comment-text\" rows=\"2\">".str_replace("<br />", "\n", $descriptionPhoto)."</textarea><br />";
+											echo "<input type=\"button\" class=\"button\" value=\"Modifier la description\" onclick=\"setDescriptionPhoto('".$idPhoto."');\" />";
+										}
+										/*
+										else
+										{
+											if (trim($descriptionPhoto) != "")
+												echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
+										}
+										*/
+											
+										echo "	<div class=\"download\">";
+										echo "		<a href=\"photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
+										echo "	</div>";
+										echo "	<br />";
 										
-									echo "	<div class=\"download\">";
-									echo "		<a href=\"photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
-									echo "	</div>";
-									echo "	<br />";
+										$commentsPhoto = getCommentsPhoto($photo);
+										
+										echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
+										echo "	<div class=\"comment-list\">";
+										
+										foreach ($commentsPhoto as $comment)
+										{
+											echo "		<div class=\"comment\">";
+											echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
+											echo "			<br class=\"comment-clear\" />";
+											echo "			<div class=\"comment-content\">";
+											echo $comment['commentaire'];
+											echo "			</div>";
+											echo "		</div>";
+											echo "		<br />";
+										}
+										
+										echo "	</div>";
+										echo "</div>";
+										echo "</li>";
+										
+										$i++;
+								}
+								
+								?>
+							</ul>
+							<a class="pageLink next" href="#" title="Page suivante"><span>&gt;&gt;</span></a>
+						</div>
+					</div>
+					<div class="content">
+						<br />
+						<div class="slideshow-container">
+							<div id="controls" class="controls"></div>
+							<div id="loading" class="loader"></div>
+							<div id="slideshow" class="slideshow"></div>
+						</div>
+						<div id="caption" class="caption-container">
+							<div class="add-comment">
+								<div class="comment-title">Ajouter un commentaire</div><br />
+								<input id="comment-login" type="text" value="Saisissez votre nom" onfocus="if (this.value == 'Saisissez votre nom') this.value = '';" onblur="validateComment();" /><br />
+								<textarea id="comment-text" class="comment-text" rows="3" onfocus="if (this.value == 'Saisissez votre commentaire...') this.value = '';" onblur="validateComment();">Saisissez votre commentaire...</textarea><br />
+								<input type="button" class="button" value="Ajouter le commentaire" onclick="if (validateComment()) saveComment();" />
+								<input id="comment-photo" type="hidden" />
+							</div>
+							<script>
+							
+								function displayAddAlbum()
+								{
+									$('#site').fadeTo('fast', 0.0);
+									$('#site').hide();
+									$('#add-album').fadeTo('slow', 1.0);
+								}
+							
+								function displaySite()
+								{
+									$('#add-album').fadeTo('slow', 0.0);
+									$('#add-album').hide();
+									$('#site').fadeTo('fast', 1.0);
+								}
+							
+								function initialiseComment()
+								{
+									$('#comment-login').removeClass('error');
+									$('#comment-text').removeClass('error');
+									$('#comment-login').val('Saisissez votre nom');
+									$('#comment-text').val('Saisissez votre commentaire...');
+								}
+							
+								function validateComment()
+								{
+									var result = true;
+									$('#comment-login').removeClass('error');
+									$('#comment-text').removeClass('error');
 									
-									$commentsPhoto = getCommentsPhoto($photo);
-									
-									echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
-									echo "	<div class=\"comment-list\">";
-									
-									foreach ($commentsPhoto as $comment)
+									if ($('#comment-login').val() == '' || $('#comment-login').val() == 'Saisissez votre nom')
 									{
-										echo "		<div class=\"comment\">";
-										echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
-										echo "			<br class=\"comment-clear\" />";
-										echo "			<div class=\"comment-content\">";
-										echo $comment['commentaire'];
-										echo "			</div>";
-										echo "		</div>";
-										echo "		<br />";
+										$('#comment-login').val('Saisissez votre nom');
+										$('#comment-login').addClass('error');
+										result = false;
+									}
+									if ($('#comment-text').val() == '' || $('#comment-text').val() == 'Saisissez votre commentaire...')
+									{
+										$('#comment-text').val('Saisissez votre commentaire...');
+										$('#comment-text').addClass('error');
+										result = false;
 									}
 									
-									echo "	</div>";
-									echo "</div>";
-									echo "</li>";
+									return result;
+								}
+								
+								function saveComment()
+								{
+									getDatas('addComment', 'resultAddComment', 'photo=' + $('#comment-photo').val() + '&login=' + encode($('#comment-login').val()) + '&commentaire=' + encode($('#comment-text').val()));
+									//alert(resultAddComment);
+									window.location.reload();
+								}							
+
+								function setTitreAlbum(album)
+								{
+									getDatas('setTitreAlbum', 'resultSetTitreAlbum', 'album=' + album + '&titre=' + encode($('#titre-text-' + album).val()));
+									//alert(resultSetTitreAlbum);
+									window.location.reload();
+								}							
+								
+								function setDescriptionPhoto(photo)
+								{
+									getDatas('setDescriptionPhoto', 'resultSetDescriptionPhoto', 'photo=' + photo + '&description=' + encode($('#description-text-' + photo).val()));
+									//alert(resultSetDescriptionPhoto);
+									window.location.reload();
+								}			
+
+								function initialiseEmail()
+								{
+									$('#mail-text').val('Saisissez votre email');
+									$('#linkMail').hide();
+									$('#spanMail').fadeTo('slow', 1.0);
+									$('#spanMailOk').hide();
+								}
+								
+								function isValidEmailAddress(emailAddress) 
+								{
+									var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+									return pattern.test(emailAddress);
+								}
+
+								function validateEmail()
+								{
+									var result = true;
+									$('#mail-text').removeClass('error');
 									
-									$i++;
-							}
-							
-							?>
-						</ul>
-						<a class="pageLink next" href="#" title="Page suivante"><span>&gt;&gt;</span></a>
-					</div>
-				</div>
-				<div class="content">
-					<br />
-					<div class="slideshow-container">
-						<div id="controls" class="controls"></div>
-						<div id="loading" class="loader"></div>
-						<div id="slideshow" class="slideshow"></div>
-					</div>
-					<div id="caption" class="caption-container">
-						<div class="add-comment">
-							<div class="comment-title">Ajouter un commentaire</div><br />
-							<input id="comment-login" type="text" value="Saisissez votre nom" onfocus="if (this.value == 'Saisissez votre nom') this.value = '';" onblur="validateComment();" /><br />
-							<textarea id="comment-text" class="comment-text" rows="3" onfocus="if (this.value == 'Saisissez votre commentaire...') this.value = '';" onblur="validateComment();">Saisissez votre commentaire...</textarea><br />
-							<input type="button" class="button" value="Ajouter le commentaire" onclick="if (validateComment()) saveComment();" />
-							<input id="comment-photo" type="hidden" />
-						</div>
-						<script>
-						
-							function initialiseComment()
-							{
-								$('#comment-login').removeClass('error');
-								$('#comment-text').removeClass('error');
-								$('#comment-login').val('Saisissez votre nom');
-								$('#comment-text').val('Saisissez votre commentaire...');
-							}
-						
-							function validateComment()
-							{
-								var result = true;
-								$('#comment-login').removeClass('error');
-								$('#comment-text').removeClass('error');
-								
-								if ($('#comment-login').val() == '' || $('#comment-login').val() == 'Saisissez votre nom')
-								{
-									$('#comment-login').val('Saisissez votre nom');
-									$('#comment-login').addClass('error');
-									result = false;
-								}
-								if ($('#comment-text').val() == '' || $('#comment-text').val() == 'Saisissez votre commentaire...')
-								{
-									$('#comment-text').val('Saisissez votre commentaire...');
-									$('#comment-text').addClass('error');
-									result = false;
-								}
-								
-								return result;
-							}
-							
-							function saveComment()
-							{
-								getDatas('addComment', 'resultAddComment', 'photo=' + $('#comment-photo').val() + '&login=' + encode($('#comment-login').val()) + '&commentaire=' + encode($('#comment-text').val()));
-								//alert(resultAddComment);
-								window.location.reload();
-							}							
-
-							function setTitreAlbum(album)
-							{
-								getDatas('setTitreAlbum', 'resultSetTitreAlbum', 'album=' + album + '&titre=' + encode($('#titre-text-' + album).val()));
-								//alert(resultSetTitreAlbum);
-								window.location.reload();
-							}							
-							
-							function setDescriptionPhoto(photo)
-							{
-								getDatas('setDescriptionPhoto', 'resultSetDescriptionPhoto', 'photo=' + photo + '&description=' + encode($('#description-text-' + photo).val()));
-								//alert(resultSetDescriptionPhoto);
-								window.location.reload();
-							}			
-
-							function initialiseEmail()
-							{
-								$('#mail-text').val('Saisissez votre email');
-								$('#linkMail').hide();
-								$('#spanMail').fadeTo('slow', 1.0);
-								$('#spanMailOk').hide();
-							}
-							
-							function isValidEmailAddress(emailAddress) 
-							{
-								var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
-								return pattern.test(emailAddress);
-							}
-
-							function validateEmail()
-							{
-								var result = true;
-								$('#mail-text').removeClass('error');
-								
-								if ($('#mail-text').val() == '' || $('#mail-text').val() == 'Saisissez votre email')
-								{
-									//$('#mail-text').val('Saisissez votre email');
-									$('#mail-text').addClass('error');
-									result = false;
-								}
-								else
-								{
-									if (!isValidEmailAddress($('#mail-text').val()))
+									if ($('#mail-text').val() == '' || $('#mail-text').val() == 'Saisissez votre email')
 									{
+										//$('#mail-text').val('Saisissez votre email');
 										$('#mail-text').addClass('error');
 										result = false;
 									}
+									else
+									{
+										if (!isValidEmailAddress($('#mail-text').val()))
+										{
+											$('#mail-text').addClass('error');
+											result = false;
+										}
+									}
+									
+									return result;
 								}
 								
-								return result;
-							}
-							
-							function saveEmail()
-							{
-								//alert('Adresse à enregistrer : ' + $('#mail-text').val());
-								getDatas('addMail', 'resultAddMail', 'mail=' + encode($('#mail-text').val()));
-								//alert(resultAddMail);
+								function saveEmail()
+								{
+									//alert('Adresse à enregistrer : ' + $('#mail-text').val());
+									getDatas('addMail', 'resultAddMail', 'mail=' + encode($('#mail-text').val()));
+									//alert(resultAddMail);
+									
+									$('#spanMailAdresse').html($('#mail-text').val());
 								
-								$('#spanMailAdresse').html($('#mail-text').val());
-							
-								$('#spanMail').hide();
-								
-								$('#spanMailOk').fadeTo('slow', 1.0);
-								/*
-								$('#spanMailOk').fadeTo('slow', 1.0).delay(2000).fadeTo('slow', 0.0).queue(function(){
-									$('#linkMail').fadeTo('slow', 1.0);
-									document.getElementById('spanMail').style.display = 'none';
-									document.getElementById('spanMailOk').style.display = 'none';
-								});
-								*/
-							}
-						</script>
-						<div class="photo-index"></div>
+									$('#spanMail').hide();
+									
+									$('#spanMailOk').fadeTo('slow', 1.0);
+									/*
+									$('#spanMailOk').fadeTo('slow', 1.0).delay(2000).fadeTo('slow', 0.0).queue(function(){
+										$('#linkMail').fadeTo('slow', 1.0);
+										document.getElementById('spanMail').style.display = 'none';
+										document.getElementById('spanMailOk').style.display = 'none';
+									});
+									*/
+								}
+							</script>
+							<div class="photo-index"></div>
+						</div>
 					</div>
+					<!-- End Gallery Html Containers -->
+					<div style="clear: both;"></div>
 				</div>
-				<!-- End Gallery Html Containers -->
-				<div style="clear: both;"></div>
 			</div>
 		</div>
 		<div id="footer">Timothé est né le 27 janvier 2011 à 2h17 à Nantes. <br />Il mesurait alors 51,5 cm et pesait 3 kg 450. <br />Le plus beau bébé du monde...</div>
