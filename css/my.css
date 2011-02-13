@@ -1,12 +1,13 @@
 .zipLink, .mailLink {
     border-width:0px;	
+	cursor:pointer;
 }
 .zipLink img, .mailLink img {
     border-width:0px;	
 }
 .zipLink span, .mailLink span {
 	position:relative;
-	top:-3px;
+	/*top:-3px;*/
 	padding-left:5px;
 }
 .pageLink {
@@ -116,6 +117,10 @@ input.button {
 	color:white;
 }
 
+input.buttonMail {
+	padding:0px;
+}
+
 .comment-text {
 }
 
@@ -130,4 +135,11 @@ input.button {
 	background-color: rgb(8, 8, 8);
 }
 
+#spanMailAdresse {
+	font-weight:bold;
+	color:green;
+}
 
+form {
+	margin:0px;
+}

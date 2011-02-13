@@ -48,7 +48,12 @@ $admin = (isset($_GET['admin']));
 					<br />
 				</div>
 				<div class="links">
-					<a href="##" class="mailLink"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
+					<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
+					<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
+					<span id="spanMailOk" style="display:none;">
+						Adresse enregistrée : <span id="spanMailAdresse"></span><br />
+						<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
+					</span>
 					<br />
 					<a href="##" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
 				</div>
@@ -215,7 +220,64 @@ $admin = (isset($_GET['admin']));
 								getDatas('setDescriptionPhoto', 'resultSetDescriptionPhoto', 'photo=' + photo + '&description=' + encode($('#description-text-' + photo).val()));
 								//alert(resultSetDescriptionPhoto);
 								window.location.reload();
-							}							
+							}			
+
+							function initialiseEmail()
+							{
+								$('#mail-text').val('Saisissez votre email');
+								$('#linkMail').hide();
+								$('#spanMail').fadeTo('slow', 1.0);
+								$('#spanMailOk').hide();
+							}
+							
+							function isValidEmailAddress(emailAddress) 
+							{
+								var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+								return pattern.test(emailAddress);
+							}
+
+							function validateEmail()
+							{
+								var result = true;
+								$('#mail-text').removeClass('error');
+								
+								if ($('#mail-text').val() == '' || $('#mail-text').val() == 'Saisissez votre email')
+								{
+									//$('#mail-text').val('Saisissez votre email');
+									$('#mail-text').addClass('error');
+									result = false;
+								}
+								else
+								{
+									if (!isValidEmailAddress($('#mail-text').val()))
+									{
+										$('#mail-text').addClass('error');
+										result = false;
+									}
+								}
+								
+								return result;
+							}
+							
+							function saveEmail()
+							{
+								//alert('Adresse à enregistrer : ' + $('#mail-text').val());
+								getDatas('addMail', 'resultAddMail', 'mail=' + encode($('#mail-text').val()));
+								//alert(resultAddMail);
+								
+								$('#spanMailAdresse').html($('#mail-text').val());
+							
+								$('#spanMail').hide();
+								
+								$('#spanMailOk').fadeTo('slow', 1.0);
+								/*
+								$('#spanMailOk').fadeTo('slow', 1.0).delay(2000).fadeTo('slow', 0.0).queue(function(){
+									$('#linkMail').fadeTo('slow', 1.0);
+									document.getElementById('spanMail').style.display = 'none';
+									document.getElementById('spanMailOk').style.display = 'none';
+								});
+								*/
+							}
 						</script>
 						<div class="photo-index"></div>
 					</div>

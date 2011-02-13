@@ -141,5 +141,27 @@ function addComment($idPhoto, $login, $commentaire)
 	return $nom_fichier;
 }
 
+function addMail($mail)
+{
+	$separator = utf8_encode(";");
+
+	$nom_fichier = '../mails/mailing_list.txt';
+	
+	if (file_exists($nom_fichier))
+		$contenu = @file_get_contents($nom_fichier);
+	else
+		$contenu = $separator;
+	
+	$mail = strtolower($mail);
+	
+	if (strpos($contenu, $separator.$mail.$separator) === FALSE)
+	{
+		$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+		fwrite($fichier, $contenu.$mail.$separator);
+		fclose($fichier);
+	}
+
+	return $nom_fichier;
+}
 
  ?>
