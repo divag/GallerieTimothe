@@ -55,7 +55,7 @@ $admin = (isset($_GET['admin']));
 						<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
 					</span>
 					<br />
-					<a href="##" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
+					<a href="photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
 				</div>
 				<br class="clear" />
 				<!-- <h2>Nom de la gallerie...</h2> -->
