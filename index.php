@@ -65,7 +65,7 @@ $admin = (isset($_GET['admin']));
 					</div>
 					<div class="links">
 						<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
-						<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
+						<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" name="email" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
 						<span id="spanMailOk" style="display:none;">
 							Adresse enregistrée : <span id="spanMailAdresse"></span><br />
 							<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
