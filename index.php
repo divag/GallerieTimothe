@@ -13,6 +13,8 @@ $admin = (isset($_GET['admin']));
 		
 		<!-- <link rel="stylesheet" href="css/white.css" type="text/css" /> -->
 		<link rel="stylesheet" href="css/black.css" type="text/css" />
+		<link rel="stylesheet" href="css/jquery-ui.css" id="theme">
+		<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
 		<link rel="stylesheet" href="css/my.css" type="text/css" />
 		
 		<script type="text/javascript" src="js/jquery-1.5.min.js"></script>
@@ -23,6 +25,7 @@ $admin = (isset($_GET['admin']));
 		<!-- We only want the thunbnails to display when javascript is disabled -->
 		<script type="text/javascript">
 			document.write('<style>.noscript { display: none; }</style>');
+			var urlBase = 'http://divag.parishq.net/Timothe/';
 			var urlBaseFunction = 'http://divag.parishq.net/Timothe/functions/';
 			var debug = <?php echo (isset($_GET['debug']) ? 'true' : 'false') ?>;
 			var admin = <?php echo ($admin ? 'true' : 'false') ?>;
@@ -31,34 +34,154 @@ $admin = (isset($_GET['admin']));
 	<body>
 		<?php
 		
-			$listePhotos = getListePhotos();
-			$idLastAlbum = substr($listePhotos[0], 0, 3);
+			$listePhotos = getListePhotos($admin);
+			$idLastAlbum = substr($listePhotos[0], 0, 3);	
 			$lastAlbum = getAlbumInfos($idLastAlbum);
 			$dateLastAlbum = $lastAlbum['date'];
 			$titreLastAlbum = $lastAlbum['titre'];
-						
+									
 		?>
 		<div id="page">
 			<div id="container">
 				<div id="add-album" style="display:none;">
-					Ajout d'album :
-					<br /> - Ajout et tri des fichiers
+				
+					<form id="file_upload" action="functions/upload.php" method="POST" enctype="multipart/form-data">
+						<input type="file" name="file" multiple>
+						<button>Uploader des photos</button>
+						<div>Uploader des photos</div>
+					</form>
+
+					<table id="files"></table>
+					
 					<br />
 					<br />
-					<input type="button" class="button" value="OK" onclick="displaySite();" />
+					<input type="button" id="start_uploads" class="button" value="OK" />
+					<div id="while_uploads" class="wait">
+					Traitement en cours, veuillez patienter...
+					</div>
+					<!--
+					<script src="js/jquery-1.5.min.js"></script>
+					-->
+					<script src="js/jquery-ui.min.js"></script>
+					<script src="js/jquery.fileupload.js"></script>
+					<script src="js/jquery.fileupload-ui.js"></script>
+					<script src="js/jquery.tablednd_0_5.js"></script>
+					<script src="js/application.js"></script>
+					<script>
+					$('#file_upload').fileUploadUI({
+						uploadTable: $('#files'),
+						downloadTable: $('#files'),
+						buildUploadRow: function (files, index) {
+							return $('<tr id="' + index + '"><td class="file_upload_preview"><\/td>' +
+									'<td class="dragHandle">' + files[index].name + '<\/td>' +
+									'<td class="file_upload_order"><input type="text" id="orderItem' + index + '" title="File order" value="1"><\/td>' +
+									'<td class="file_upload_progress"><div><\/div><\/td>' +
+									'<td class="file_upload_start" style="display:none;">' +
+									'<button class="ui-state-default ui-corner-all" title="Start Upload">' +
+									'<span class="ui-icon ui-icon-circle-arrow-e">Start Upload<\/span>' +
+									'<\/button><\/td>' +
+									'<td class="file_upload_cancel">' +
+									'<button class="ui-state-default ui-corner-all" title="Cancel">' +
+									'<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
+									'<\/button><\/td><\/tr>');
+						},
+						buildDownloadRow: function (file) {
+							return $('<tr><td>' + file.name + '<\/td><\/tr>');
+						},
+						beforeSend: function (event, files, index, xhr, handler, callBack) {
+							handler.uploadRow.find('.file_upload_start button').click(function () {
+								handler.formData = {
+									ordre: handler.uploadRow.find('.file_upload_order input').val()
+								};
+								callBack();
+							});
+							
+							$("#files").tableDnD({
+								onDrop: function(table, row) {
+									updateOrdrePhotos();
+								},
+								dragHandle: "dragHandle"
+							});
+							
+							updateOrdrePhotos();
+						},
+						onComplete: function (event, files, index, xhr, handler) {
+							handler.onCompleteAll(files);
+							//$('#result').html($('#result').html() + '<br />' + files[index].name);
+						},
+						onAbort: function (event, files, index, xhr, handler) {
+							handler.removeNode(handler.uploadRow);
+							handler.onCompleteAll(files);
+						},
+						onCompleteAll: function (files) {
+							// The files array is a shared object between the instances of an upload selection.
+							// We extend it with a uploadCounter to calculate when all uploads have completed:
+							if (!files.uploadCounter) {
+								files.uploadCounter = 1;  
+							} else {
+								files.uploadCounter = files.uploadCounter + 1;
+							}
+							if (files.uploadCounter === files.length) {
+								// your code after all uplaods have completed
+								//$('#result').html($('#result').html() + '<br />Upload terminé');
+							}
+						}
+						//,
+						//dropZone: $('#file_upload_container')
+					});
+
+					function updateOrdrePhotos() {
+						var ordrePhoto = 1;
+						$('#files .file_upload_order input').each(function()
+						{
+							$(this).val(ordrePhoto);
+							ordrePhoto++;
+						});
+					}
+
+					$('#start_uploads').click(function () {
+						if ($('#files tr').length != 0)
+						{
+							$('#start_uploads').hide();
+							$('#while_uploads').show();
+							updateOrdrePhotos();	
+							$('.file_upload_start button').click();
+
+							setInterval(function() {
+								if ($('#files tr').length == 0)
+								{
+									window.location.href = urlBase + '?admin';
+								}
+							}, 500);
+						}
+						else
+						{
+							displaySite();
+						}
+					});
+					</script> 
 				</div>
 				<div id="site">
 					<?php
 						if ($admin)
 						{
 							echo "<div style=\"padding-bottom:15px;\">";
-							echo "<input type=\"button\" class=\"button\" value=\"Ajouter un nouvel album\" onclick=\"displayAddAlbum();\" />";
+							echo "<input type=\"button\" class=\"button\" value=\"Ajouter de nouvelles photos\" onclick=\"displayAddAlbum();\" />";
+							if ($idLastAlbum == 'new')
+							{
+								echo "<br />";
+								echo "<input id=\"start_publish\" type=\"button\" class=\"button\" value=\"Publier l'album en cours de création\" onclick=\"publishAlbum();\" />";
+								echo "<div id=\"while_publish\" class=\"wait\">";
+								echo "Traitement en cours, veuillez patienter...";
+								echo "</div>";
+
+							}
 							echo "</div>";
 						}
 					?>
 					<div class="header">
 						<h1><a href="">Les photos du petit Timoth&eacute;</a></h1>
-						<div id="lastUpdate">
+						<div id="lastUpdate" <?php if ($idLastAlbum == 'new') echo "style=\"display:none;\"" ?>>
 							Mis à jour le <?php echo $dateLastAlbum ?> : <span>Ajout de l'album <b><?php echo $titreLastAlbum ?></b></span>
 						</div>
 						<br />
@@ -90,6 +213,7 @@ $admin = (isset($_GET['admin']));
 									
 									$idTempAlbum = $idLastAlbum;
 									$i = 0;
+									$newAlbumHaveAllDescriptions = true;
 									
 									foreach ($listePhotos as $photo)
 									{
@@ -107,10 +231,18 @@ $admin = (isset($_GET['admin']));
 										$descriptionPhoto = getDescriptionPhoto($photo);
 									
 										echo "<li>";
-										echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+										echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
 										echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
 										echo "</a>";
 										echo "<div class=\"caption right-part\">";
+										
+										if ($idAlbum == 'new')
+										{
+											echo "<input type=\"button\" class=\"button\" value=\"Supprimer cette photo\" onclick=\"deletePhoto('".$idPhoto."');\" />";
+											echo "	<br />";
+											echo "	<br />";
+										}
+										
 										echo "	<div class=\"image-title\">".$titreAlbum."</div>";
 
 										if ($admin)
@@ -127,6 +259,9 @@ $admin = (isset($_GET['admin']));
 										{
 											echo "<br /><textarea id=\"description-text-".$idPhoto."\" class=\"comment-text\" rows=\"2\">".str_replace("<br />", "\n", $descriptionPhoto)."</textarea><br />";
 											echo "<input type=\"button\" class=\"button\" value=\"Modifier la description\" onclick=\"setDescriptionPhoto('".$idPhoto."');\" />";
+											
+											if ($idAlbum == 'new' && trim($descriptionPhoto) == "")
+												$newAlbumHaveAllDescriptions = false;
 										}
 										/*
 										else
@@ -141,30 +276,32 @@ $admin = (isset($_GET['admin']));
 										echo "	</div>";
 										echo "	<br />";
 										
-										$commentsPhoto = getCommentsPhoto($photo);
-										
-										echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
-										echo "	<div class=\"comment-list\">";
-										
-										foreach ($commentsPhoto as $comment)
+										if ($idAlbum != 'new')
 										{
-											echo "		<div class=\"comment\">";
-											echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
-											echo "			<br class=\"comment-clear\" />";
-											echo "			<div class=\"comment-content\">";
-											echo $comment['commentaire'];
-											echo "			</div>";
-											echo "		</div>";
-											echo "		<br />";
+											$commentsPhoto = getCommentsPhoto($photo);
+											
+											echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
+											echo "	<div class=\"comment-list\">";
+											
+											foreach ($commentsPhoto as $comment)
+											{
+												echo "		<div class=\"comment\">";
+												echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
+												echo "			<br class=\"comment-clear\" />";
+												echo "			<div class=\"comment-content\">";
+												echo $comment['commentaire'];
+												echo "			</div>";
+												echo "		</div>";
+												echo "		<br />";
+											}
+											
+											echo "	</div>";
+											echo "</div>";
 										}
-										
-										echo "	</div>";
-										echo "</div>";
 										echo "</li>";
 										
 										$i++;
-								}
-								
+								}							
 								?>
 							</ul>
 							<a class="pageLink next" href="#" title="Page suivante"><span>&gt;&gt;</span></a>
@@ -201,12 +338,20 @@ $admin = (isset($_GET['admin']));
 									$('#site').fadeTo('fast', 1.0);
 								}
 							
-								function initialiseComment()
+								function initialiseComment(idPhoto)
 								{
-									$('#comment-login').removeClass('error');
-									$('#comment-text').removeClass('error');
-									$('#comment-login').val('Saisissez votre nom');
-									$('#comment-text').val('Saisissez votre commentaire...');
+									if (idPhoto.indexOf('new') == 0)
+									{
+										$('.add-comment').hide();
+									}
+									else
+									{
+										$('.add-comment').show();
+										$('#comment-login').removeClass('error');
+										$('#comment-text').removeClass('error');
+										$('#comment-login').val('Saisissez votre nom');
+										$('#comment-text').val('Saisissez votre commentaire...');
+									}
 								}
 							
 								function validateComment()
@@ -245,11 +390,41 @@ $admin = (isset($_GET['admin']));
 									window.location.reload();
 								}							
 								
+								var newAlbumHaveAllDescriptions = <?php echo ($newAlbumHaveAllDescriptions ? 'true' : 'false') ?>;
+								function publishAlbum()
+								{
+									if ($('#titre-text-new').val() == 'Nouvel album sans titre')
+									{
+										alert('Veuillez saisir un titre pour le nouvel album !');
+									}
+									else
+									{
+										if (newAlbumHaveAllDescriptions || confirm("Certaines photos n'ont pas de description !\nVoulez-vous tout de même publier cet album ?"))
+										{
+											$('#start_publish').hide();
+											$('#while_publish').show();
+											getDatas('publishAlbum', 'resultPublishAlbum', 'album=new');
+											//alert(resultPublishAlbum);
+											window.location.href = urlBase;
+										}
+									}
+								}							
+								
 								function setDescriptionPhoto(photo)
 								{
 									getDatas('setDescriptionPhoto', 'resultSetDescriptionPhoto', 'photo=' + photo + '&description=' + encode($('#description-text-' + photo).val()));
 									//alert(resultSetDescriptionPhoto);
 									window.location.reload();
+								}			
+
+								function deletePhoto(photo)
+								{
+									if (confirm('Etes-vous certain de vouloir supprimer cette photo ?'))
+									{
+										getDatas('deletePhoto', 'resultDeletePhoto', 'photo=' + photo);
+										//alert(resultSetDescriptionPhoto);
+										window.location.href = urlBase + '?admin';
+									}
 								}			
 
 								function initialiseEmail()
@@ -371,7 +546,7 @@ $admin = (isset($_GET['admin']));
 						this.$captionContainer.find('#comment-photo')
 							.val(this.data[nextIndex].id);
 							
-						initialiseComment();
+						initialiseComment(this.data[nextIndex].id);
 					},
 					onPageTransitionOut:       function(callback) {
 						this.fadeTo('fast', 0.0, callback);

@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['photo'])){	$fichier = deletePhoto($_POST["photo"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["photo"].$_POST["login"].$_POST["commentaire"]."';";}?>

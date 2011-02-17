@@ -64,12 +64,6 @@
 .clear {
 	clear: both;
 }
-.new {
-	border-width:1px;
-	border-style:solid;
-	border-color:red;
-	margin:-1px;
-}
 .no-description {
 	border-width:1px;
 	border-style:solid;
@@ -80,6 +74,12 @@
 	border-width:1px;
 	border-style:solid;
 	border-color:green;
+	margin:-1px;
+}
+.new {
+	border-width:1px;
+	border-style:solid;
+	border-color:red;
 	margin:-1px;
 }
 .new img, .no-description img, .have-description img {
@@ -121,6 +121,15 @@ input.buttonMail {
 	padding:0px;
 }
 
+.wait {
+	vertical-align: middle;
+	background-color: rgb(44, 44, 44);
+	border: 1px solid rgb(69, 69, 69);
+	text-align: center;
+	padding: 3px 3px 4px;
+	display:none;
+}
+
 .comment-text {
 }
 
@@ -143,3 +152,18 @@ input.buttonMail {
 form {
 	margin:0px;
 }
+
+td.dragHandle {
+	padding-left:20px;
+	padding-right:20px;
+	cursor: move;
+}
+td.dragHandle:hover {
+	background-image: url(updown.gif);
+	background-repeat: no-repeat;
+	background-position: left center;
+}
+td.file_upload_order {
+	display:none;
+}
+
