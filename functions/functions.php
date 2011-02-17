@@ -1,5 +1,15 @@
 <?php
 
+//Envoi de mails :
+$email_from = "jbanguillot@yahoo.fr";
+define('MAIL_ADMIN',$email_from);
+$urlSendMail = 'http://int-musicdestock.fr/radioclashMailing/sendMail.php';
+define('URL_SEND_MAIL',$urlSendMail);
+//Url du site :
+define('URL_SITE',"http://divag.parishq.net/Timothe/");
+//Dossier des mails :
+define('PATH_MAIL',"mails/");
+
 function decode($value)
 {
 	return str_replace("\n", "<br />", str_replace("\'", "'", utf8_decode($value)));
@@ -7,7 +17,7 @@ function decode($value)
 
 function getLastNewPhotoId()
 {
-	$dirname = '../photos/new/';
+	$dirname = 'photos/new/';
 	$dir = opendir($dirname); 
 
 	$listePhotosAlbum = array();
@@ -97,16 +107,69 @@ function getListePhotos($admin)
 	return $listePhotos;
 }
 
+function getListePhotosForZip()
+{
+	$dirname = '../photos/';
+	$dir = opendir($dirname); 
+
+	$listeAlbums = array();
+	$i = 0;
+	while($file = readdir($dir)) {
+		if($file != '.' && $file != '..' && is_dir($dirname.$file) && is_numeric($file))
+		{
+			$listeAlbums[$i] = $file;
+			$i++;
+		}
+	}
+
+	closedir($dir);
+	sort($listeAlbums);
+	
+	$listePhotos = array();
+	$i = 0;
+		
+	foreach ($listeAlbums as $album)
+	{
+		$dirname = '../photos/'.$album.'/';
+		$dir = opendir($dirname); 
+
+		$listePhotosAlbum = array();
+		$j = 0;
+		while($file = readdir($dir)) {
+			if($file != '.' && $file != 'Thumbs.db' && $file != '..' && !is_dir($dirname.$file) && strpos($file, '_thumb') == false && strpos($file, '_original') == false && strpos($file, '.JPG') != false)
+			{
+				$listePhotosAlbum[$j] = $album.'/'.$file;
+				$j++;
+			}
+		}
+
+		closedir($dir);
+		
+		sort($listePhotosAlbum);
+
+		foreach ($listePhotosAlbum as $photoAlbum)
+		{
+			$listePhotos[$i] = $photoAlbum;
+			$i++;
+		}	
+	}
+	
+	return $listePhotos;
+}
+
 function getAlbumInfos($idAlbum)
 {
-	$fichier = 'photos/'.$idAlbum.'/album.txt';
-	$contenu = file_get_contents($fichier);
-	$array_album = explode(';', $contenu);
-	
-	$result = array();
-	$result['date'] = decode($array_album[0]);
-	$result['titre'] = decode($array_album[1]);
-	return $result;
+	if ($idAlbum != '')
+	{
+		$fichier = 'photos/'.$idAlbum.'/album.txt';
+		$contenu = file_get_contents($fichier);
+		$array_album = explode(';', $contenu);
+		
+		$result = array();
+		$result['date'] = decode($array_album[0]);
+		$result['titre'] = decode($array_album[1]);
+		return $result;
+	}
 }
 
 function getAlbumInfosFromFunctions($idAlbum)
@@ -202,18 +265,53 @@ function publishAlbum()
 	
 	//On envoie les mails :
 	//=====================
-	sendMailNewAlbum($newAlbumId);
+	sendAllMailsNewAlbum($newAlbumId);
 }
 
 function generateZip()
 {
+	include('createzip.inc.php');
+	
+	// Creation du nom du fichier zip
+	$nomFichierZip = '../photos/PhotosTimothe.zip';
 
+	// Si le zip a déjà été généré il faut l"effacer de suite pour eviter de creer un zip 
+	// contenant le zip précédent
+	if(file_exists($nomFichierZip))
+	 @unlink($nomFichierZip);
+
+	// instanciation de l'objet createZip
+	$timotheZip = new createZip;  
+
+	$listePhotos = getListePhotosForZip();
+	
+	foreach ($listePhotos as $photo)
+	{
+		$fileContents = file_get_contents('../photos/'.str_replace('.JPG', '_original.JPG', $photo));
+		$fileName = substr($photo, 4);
+		$timotheZip -> addFile($fileContents, $fileName); 
+	}	
+	
+	$fd = fopen ($nomFichierZip, "wb");
+	$out = fwrite ($fd, $timotheZip -> getZippedfile());
+	fclose ($fd);
 }
 
-function sendMailNewAlbum($IdAlbum)
+function sendAllMailsNewAlbum($idAlbum)
 {
-
+	$fichier = '../mails/mailing_list.txt';
+	$contenu = file_get_contents($fichier);
+	$array_mails = explode(';', $contenu);
+	
+	foreach ($array_mails as $mail)
+	{
+		if ($mail != '')
+			sendEmailFile(sendMailNewAlbum($idAlbum, $mail));
+	}
 }
+
+//sendAllMailsNewAlbum('001');
+//clearDir('../photos/001');
 
 function clearDir($dossier) 
 {
@@ -339,4 +437,125 @@ function addMail($mail)
 	return $nom_fichier;
 }
 
+function deleteMail($mail)
+{
+	$separator = utf8_encode(";");
+
+	$nom_fichier = 'mails/mailing_list.txt';
+	
+	if (file_exists($nom_fichier))
+	{
+		$contenu = @file_get_contents($nom_fichier);
+	
+		$mail = strtolower($mail);
+		
+		$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+		fwrite($fichier, str_replace($separator.$mail.$separator, $separator, $contenu));
+		fclose($fichier);
+	}
+	
+	return $nom_fichier;
+}
+
+/**************************************/
+/**   E N V O I   D E   M A I L S    **/
+/**************************************/
+/*
+ * Function generateEmailFile : permet de créer un fichier csv utilisé pour l'envoi de mail
+ * Format fichier csv : FROM|||TO|||TITLE|||MESSAGE TEXT|||MESSAGE HTML
+ * @params $id : identifiant de l'utilisateur concerné (son mot de passe ou les mails qu'il envoie)
+ * @params $from : expediteur
+ * @params $to : destinataire
+ * @params $title : titre du message à envoyer
+ * @params $msg : message à envoyer
+ * @returns : path relatif du fichier ou null 
+ */
+ function generateEmailFile($to,$title,$msgTxt,$msgHtml)
+ {
+	$from = MAIL_ADMIN;
+ 	// les séparateur sont "|||" mais on check tout de même dans les chaines
+ 	while(strpos($msgTxt,"|||"))
+ 		str_replace("|||","|",$msgTxt);
+ 	while(strpos($msgHtml,"|||"))
+ 		str_replace("|||","|",$msgTxt);
+ 	
+ 	// on vérifie que le dossier de l'utilisateur a été créé
+ 	if(!file_exists("../".PATH_MAIL))
+ 	{
+ 		if(!mkdir("../".PATH_MAIL))
+ 		{
+ 			echo "ERREUR LORS DE LA CREATION DU DOSSIER";
+ 			return false;
+ 		}
+ 	}
+ 	$file=  "../".PATH_MAIL."/".time()."_".$to.".csv";
+ 	$fp=fopen($file,"w+");
+ 	$str=$from."|||".$to."|||".$title."|||".$msgTxt."|||".$msgHtml;
+ 	fwrite($fp,$str);
+ 	fclose($fp);
+ 	return $file;
+ }
+
+ /*
+  * Function sendEmailFile permet d'envoyer par mail un fichier "email" généré au préalable 
+  * @param : $fileEmail : path relatif vers le fichier contenant les infos pour le mail
+  */
+ function sendEmailFile($file_email)
+ {
+ 	$url_file=str_replace("../",URL_SITE,$file_email);
+ 	return file_get_contents(URL_SEND_MAIL.'?fileurl='.$url_file);
+ }
+  
+ /*
+  * Function sendMailNewAlbum permet d'envoyer le mail d'une newsletter à un utilisateur
+  * @params : $idAlbum = ID de l'album à annoncer dans la newsletter
+  * @params : $mail = email de l'utilisateur
+  */
+ function sendMailNewAlbum($idAlbum, $mail)
+ {
+ 	$infosAlbum = getAlbumInfosFromFunctions($idAlbum);
+	
+	$mail_text  = "Coucou !\r\n\r\nLa série de photos suivante à été ajoutée :\r\n\r\n";
+	$mail_text .= " - ".$infosAlbum['titre']."\r\n\r\n";
+	$mail_text .= "Rendez-vous ici :\r\n";
+	$mail_text .= " - ".URL_SITE." (copier-coller le lien dans votre navigateur)\r\n\r\n";
+	$mail_text .= "Bonne visite !\r\n\r\n";
+	$mail_text .= "Bisous bisous,\r\n";
+	$mail_text .= "Gaëtan, Julie et Timothé.\r\n";
+	$mail_text .= "\r\n";
+	$mail_text .= "\r\n";
+	$mail_text .= "\r\nPour vous désabonnez, ouvrez la page suivante : ".URL_SITE."unregister.php?id=".base64_encode($mail);
+	
+	$mail_html="Coucou !<br /><br />
+	La s&eacute;rie de photos suivante &agrave; &eacute;t&eacute; ajout&eacute;e :
+	 <ul>
+			<li>".$infosAlbum['titre']."</li>
+	</ul>
+	<p><u>Rendez-vous ici :</u></p>
+	<ul>
+		<li><a href=\"".URL_SITE."\" target=\"blank\"><b>".URL_SITE."</b></a></li>
+	</ul>
+	<p>
+		Bonne visite !<br /><br />
+		Bisous bisous,<br />
+		Gaetan, Julie, et Timoth&eacute;.
+	</p>
+	<p style=\"color:gray\">
+		Pour se d&eacute;sabonner, <a href=\"".URL_SITE."unregister.php?id=".base64_encode($mail)."\" target=\"blank\">cliquez ici</a>.
+	</p>";
+	
+	return generateEmailFile($mail,"De nouvelles photos de Timothé sont en ligne !",utf8_decode($mail_text),utf8_decode($mail_html));
+	//return generateEmailFile($mail,utf8_decode("De nouvelles photos de Timothé sont en ligne !"),utf8_decode($mail_text),utf8_decode($mail_html));
+ }
+ 
+/*
+ * Function isMail permet de checker que l'adresse email est pseudo valide
+ * @params: email, la chaine à tester
+ * @return: true / false
+ */
+ function isMail($email)
+ {
+ 	return preg_match('/^[a-z0-9]+[._a-z0-9-]*@[a-z0-9]+[._a-z0-9-]*\.[a-z0-9]+$/ui', $email);
+ } 
+ 
  ?>

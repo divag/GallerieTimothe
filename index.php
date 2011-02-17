@@ -125,13 +125,16 @@ $admin = (isset($_GET['admin']));
 								// your code after all uplaods have completed
 								//$('#result').html($('#result').html() + '<br />Upload terminé');
 							}
-						}
+						}//,
+						//imageTypes: /^image\/(gif|jpeg|png)$/
+						//imageTypes: /^image\/(jpeg)$/
 						//,
 						//dropZone: $('#file_upload_container')
 					});
 
 					function updateOrdrePhotos() {
-						var ordrePhoto = 1;
+						var ordrePhoto = <?php echo getLastNewPhotoId() + 1; ?>;
+						
 						$('#files .file_upload_order input').each(function()
 						{
 							$(this).val(ordrePhoto);

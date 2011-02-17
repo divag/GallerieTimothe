@@ -137,6 +137,14 @@ input.buttonMail {
 	border-color:red;
 }
 
+.red {
+	color:red;
+}
+
+.bold {
+	font-weight:bolder;
+}
+
 .comment-content {
 	border: 1px dashed rgb(49, 48, 48);
 	padding: 2px 11px 4px 11px;
