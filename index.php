@@ -25,26 +25,64 @@ $admin = (isset($_GET['admin']));
 		<!-- We only want the thunbnails to display when javascript is disabled -->
 		<script type="text/javascript">
 			document.write('<style>.noscript { display: none; }</style>');
-			var urlBase = 'http://divag.parishq.net/Timothe/';
-			var urlBaseFunction = 'http://divag.parishq.net/Timothe/functions/';
+			var urlBase = '<?php echo URL_SITE ?>';
+			var urlBaseFunction = urlBase + 'functions/';
 			var debug = <?php echo (isset($_GET['debug']) ? 'true' : 'false') ?>;
 			var admin = <?php echo ($admin ? 'true' : 'false') ?>;
 		</script>
 	</head>
 	<body>
-		<?php
-		
-			$listePhotos = getListePhotos($admin);
-			$idLastAlbum = substr($listePhotos[0], 0, 3);	
-			$lastAlbum = getAlbumInfos($idLastAlbum);
-			$dateLastAlbum = $lastAlbum['date'];
-			$titreLastAlbum = $lastAlbum['titre'];
-									
-		?>
 		<div id="page">
-			<div id="container">
-				<div id="add-album" style="display:none;">
+			<?php
+			
+				$listePhotos = getListePhotos($admin);
+				$idLastAlbum = substr($listePhotos[0], 0, 3);	
+				$lastAlbum = getAlbumInfos($idLastAlbum);
+				$dateLastAlbum = $lastAlbum['date'];
+				$titreLastAlbum = $lastAlbum['titre'];
 				
+				if ($listePhotos.length == 0)
+				{
+					$havePhotos = false;
+				}
+				else
+				{
+					$havePhotos = true;
+				}
+			?>
+			<div id="container">
+				<div id="create-site" style="display:none;text-align:center;">
+					<h1><a href="#">Paramétrage de votre site</a></h1>
+					<p>
+					Bienvenue sur votre nouvelle gallerie !<br />
+					Ce site vous permettra de publier très simplement vos photos sous la forme d'une jolie gallerie.<br /><br />
+					<span class="red"><u>Pour mettre en route votre site, il vous faudra remplir les informations suivantes :</u></span><br />					
+					</p>
+					<div style="width:400px;margin-left:auto;margin-right:auto;">
+						Adresse mail de l'administrateur :
+						<input type="text" class="comment-text" />
+						Mot de passe de l'administrateur :
+						<input type="text" class="comment-text" />
+						Titre du site :
+						<input type="text" class="comment-text" />
+						Adresse du site :
+						<input type="text" class="comment-text" />
+						<br />
+						<br />
+						<input type="button" id="start_site" class="button" value="OK" />
+					</div>
+				</div>
+				<div id="no-album" style="display:none;text-align:center;">
+					<h1 class="red">Site en construction</h1>
+					Ce site est actuellement en construction.<br />
+					Veuillez repasser ultérieurement.
+				</div>
+				<div id="add-album" style="display:none;text-align:center;">
+					<h1><a href="#">Ajout de photos</a></h1>
+					<p>
+					Pour ajouter des photos sur votre gallerie, cliquez sur le bouton ci-dessous, ou glissez directement vos fichiers sur ce bouton.<br />
+					<span class="red">Uniquement les fichiers d'extension "<b>.jpg</b>" seront pris en compte.</span>
+					</p>
 					<form id="file_upload" action="functions/upload.php" method="POST" enctype="multipart/form-data">
 						<input type="file" name="file" multiple>
 						<button>Uploader des photos</button>
@@ -326,6 +364,22 @@ $admin = (isset($_GET['admin']));
 								<input id="comment-photo" type="hidden" />
 							</div>
 							<script>
+							
+								function displayCreateSite()
+								{
+									$('#site').fadeTo('fast', 0.0);
+									$('#site').hide();
+									$('#footer').hide();
+									$('#create-album').show();
+								}
+							
+								function displayNoAlbum()
+								{
+									$('#site').fadeTo('fast', 0.0);
+									$('#site').hide();
+									$('#footer').hide();
+									$('#no-album').fadeTo('slow', 1.0);
+								}
 							
 								function displayAddAlbum()
 								{
@@ -632,6 +686,23 @@ $admin = (isset($_GET['admin']));
 				changeCaptionHeight(gallery);
 			}
 			
+			<?php 
+				if (!$havePhotos)
+				{
+					if ($admin)
+					{
+						echo "displayAddAlbum();";
+						echo "displaySite = function()";
+						echo "{";
+						echo "	return false;";
+						echo "}";
+					}
+					else
+					{
+						echo "displayNoAlbum();";
+					}
+				}
+			?>
 		</script>
 		<div id="debug">
 		</div>
