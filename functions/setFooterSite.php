@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['footer'])){	$fichier = setFooterSite($_POST["footer"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["footer"]."';";}?>

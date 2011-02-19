@@ -3,11 +3,16 @@
 include('functions/functions.php');
 $admin = (isset($_GET['admin']));
 
+if (!$no_params)
+{
+	$titreSite = getTitreSite();
+}
+
 ?>
 <html>
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-		<title>Les photos du petit Timoth&eacute;</title>
+		<title><?php echo $titreSite ?></title>
 		<link rel="stylesheet" href="css/basic.css" type="text/css" />
 		<link rel="stylesheet" href="css/galleriffic-5.css" type="text/css" />
 		
@@ -25,29 +30,38 @@ $admin = (isset($_GET['admin']));
 		<!-- We only want the thunbnails to display when javascript is disabled -->
 		<script type="text/javascript">
 			document.write('<style>.noscript { display: none; }</style>');
-			var urlBase = '<?php echo URL_SITE ?>';
+			var urlBase = '<?php if (!$no_params) echo URL_SITE ?>';
+			if (urlBase == '')
+			{
+				var url = window.location.href;
+				urlBase = url.substring(0, url.lastIndexOf('/') + 1);
+			}
 			var urlBaseFunction = urlBase + 'functions/';
 			var debug = <?php echo (isset($_GET['debug']) ? 'true' : 'false') ?>;
 			var admin = <?php echo ($admin ? 'true' : 'false') ?>;
+			var noParams = <?php echo ($no_params ? 'true' : 'false') ?>;
 		</script>
 	</head>
 	<body>
 		<div id="page">
 			<?php
 			
-				$listePhotos = getListePhotos($admin);
-				$idLastAlbum = substr($listePhotos[0], 0, 3);	
-				$lastAlbum = getAlbumInfos($idLastAlbum);
-				$dateLastAlbum = $lastAlbum['date'];
-				$titreLastAlbum = $lastAlbum['titre'];
-				
-				if ($listePhotos.length == 0)
+				if (!$no_params)
 				{
-					$havePhotos = false;
-				}
-				else
-				{
-					$havePhotos = true;
+					$listePhotos = getListePhotos($admin);
+					$idLastAlbum = substr($listePhotos[0], 0, 3);	
+					$lastAlbum = getAlbumInfos($idLastAlbum);
+					$dateLastAlbum = $lastAlbum['date'];
+					$titreLastAlbum = $lastAlbum['titre'];
+					
+					if (count($listePhotos) == 0)
+					{
+						$havePhotos = false;
+					}
+					else
+					{
+						$havePhotos = true;
+					}
 				}
 			?>
 			<div id="container">
@@ -60,16 +74,14 @@ $admin = (isset($_GET['admin']));
 					</p>
 					<div style="width:400px;margin-left:auto;margin-right:auto;">
 						Adresse mail de l'administrateur :
-						<input type="text" class="comment-text" />
+						<input id="mail-admin-text" type="text" class="comment-text" />
 						Mot de passe de l'administrateur :
-						<input type="text" class="comment-text" />
-						Titre du site :
-						<input type="text" class="comment-text" />
-						Adresse du site :
-						<input type="text" class="comment-text" />
+						<input id="pass-admin-text" type="password" class="comment-text" />
+						Saisissez à nouveau le mot de passe :
+						<input id="pass-admin-text-2" type="password" class="comment-text" />
 						<br />
 						<br />
-						<input type="button" id="start_site" class="button" value="OK" />
+						<input type="button" id="start_site" class="button" value="OK" onclick="setParametresSite();" />
 					</div>
 				</div>
 				<div id="no-album" style="display:none;text-align:center;">
@@ -204,30 +216,41 @@ $admin = (isset($_GET['admin']));
 				</div>
 				<div id="site">
 					<?php
+						if (!$no_params)
+						{
+							if ($admin)
+							{
+								echo "<div style=\"padding-bottom:15px;\">";
+								echo "<input type=\"button\" class=\"button\" value=\"Ajouter de nouvelles photos\" onclick=\"displayAddAlbum();\" />";
+								if ($idLastAlbum == 'new')
+								{
+									echo "<br />";
+									echo "<input id=\"start_publish\" type=\"button\" class=\"button\" value=\"Publier l'album en cours de création\" onclick=\"publishAlbum();\" />";
+									echo "<div id=\"while_publish\" class=\"wait\">";
+									echo "Traitement en cours, veuillez patienter...";
+									echo "</div>";
+
+								}
+								echo "</div>";
+							}
+						}
+					?>
+					<?php
 						if ($admin)
 						{
-							echo "<div style=\"padding-bottom:15px;\">";
-							echo "<input type=\"button\" class=\"button\" value=\"Ajouter de nouvelles photos\" onclick=\"displayAddAlbum();\" />";
-							if ($idLastAlbum == 'new')
-							{
-								echo "<br />";
-								echo "<input id=\"start_publish\" type=\"button\" class=\"button\" value=\"Publier l'album en cours de création\" onclick=\"publishAlbum();\" />";
-								echo "<div id=\"while_publish\" class=\"wait\">";
-								echo "Traitement en cours, veuillez patienter...";
-								echo "</div>";
-
-							}
-							echo "</div>";
+							echo "<br /><textarea id=\"site-titre-text\" class=\"comment-text\" rows=\"1\">".str_replace("<br />", "\n", $titreSite)."</textarea><br />";
+							echo "<input type=\"button\" class=\"button\" value=\"Modifier le titre du site\" onclick=\"setTitreSite();\" />";
+							echo "<br /><br />";
 						}
 					?>
 					<div class="header">
-						<h1><a href="">Les photos du petit Timoth&eacute;</a></h1>
+						<h1><a href=""><?php echo $titreSite ?></a></h1>
 						<div id="lastUpdate" <?php if ($idLastAlbum == 'new') echo "style=\"display:none;\"" ?>>
 							Mis à jour le <?php echo $dateLastAlbum ?> : <span>Ajout de l'album <b><?php echo $titreLastAlbum ?></b></span>
 						</div>
 						<br />
 					</div>
-					<div class="links">
+					<div class="links" <?php if ($admin) echo "style=\"display:none;\"" ?>>
 						<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
 						<span><form id="spanMail" style="display:none;" onsubmit="if (validateEmail()) saveEmail(); return false;"><input id="mail-text" type="text" class="comment-txt-login" name="email" style="width:79%;" onfocus="if (this.value == 'Saisissez votre email') this.value = '';" onblur="validateEmail()" value="Saisissez votre email" /><input type="button" value="OK" class="buttonMail" style="width:19%;margin-left:1px;" onclick="if (validateEmail()) saveEmail();" /></form></span>
 						<span id="spanMailOk" style="display:none;">
@@ -246,103 +269,105 @@ $admin = (isset($_GET['admin']));
 						
 							<ul class="thumbs noscript">
 								<?php
-								
-									$idAlbum = $idLastAlbum;
-									$album = $lastAlbum;
-									$dateAlbum = $lastAlbum['date'];
-									$titreAlbum = $lastAlbum['titre'];
-									
-									$idTempAlbum = $idLastAlbum;
-									$i = 0;
-									$newAlbumHaveAllDescriptions = true;
-									
-									foreach ($listePhotos as $photo)
+									if (!$no_params)
 									{
-										$idAlbum = substr($photo, 0, 3);
-										$idPhoto = substr($photo, 4);
-										if ($idAlbum != $idTempAlbum)
-										{
-											$album = getAlbumInfos($idAlbum);
-											$dateAlbum = $album['date'];
-											$titreAlbum = $album['titre'];
-											
-											$idTempAlbum = $idAlbum;
-										}
-									
-										$descriptionPhoto = getDescriptionPhoto($photo);
-									
-										echo "<li>";
-										echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
-										echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
-										echo "</a>";
-										echo "<div class=\"caption right-part\">";
+										$idAlbum = $idLastAlbum;
+										$album = $lastAlbum;
+										$dateAlbum = $lastAlbum['date'];
+										$titreAlbum = $lastAlbum['titre'];
 										
-										if ($idAlbum == 'new')
-										{
-											echo "<input type=\"button\" class=\"button\" value=\"Supprimer cette photo\" onclick=\"deletePhoto('".$idPhoto."');\" />";
-											echo "	<br />";
-											echo "	<br />";
-										}
+										$idTempAlbum = $idLastAlbum;
+										$i = 0;
+										$newAlbumHaveAllDescriptions = true;
 										
-										echo "	<div class=\"image-title\">".$titreAlbum."</div>";
-
-										if ($admin)
+										foreach ($listePhotos as $photo)
 										{
-											echo "<br /><textarea id=\"titre-text-".$idAlbum."\" class=\"comment-text\" rows=\"1\">".str_replace("<br />", "\n", $titreAlbum)."</textarea><br />";
-											echo "<input type=\"button\" class=\"button\" value=\"Modifier le titre de l'album\" onclick=\"setTitreAlbum('".$idAlbum."');\" />";
-										}
-										
-										/**/
-										if (trim($descriptionPhoto) != "")
-											echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
-										/**/
-										if ($admin)
-										{
-											echo "<br /><textarea id=\"description-text-".$idPhoto."\" class=\"comment-text\" rows=\"2\">".str_replace("<br />", "\n", $descriptionPhoto)."</textarea><br />";
-											echo "<input type=\"button\" class=\"button\" value=\"Modifier la description\" onclick=\"setDescriptionPhoto('".$idPhoto."');\" />";
-											
-											if ($idAlbum == 'new' && trim($descriptionPhoto) == "")
-												$newAlbumHaveAllDescriptions = false;
-										}
-										/*
-										else
-										{
-											if (trim($descriptionPhoto) != "")
-												echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
-										}
-										*/
-											
-										echo "	<div class=\"download\">";
-										echo "		<a href=\"photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
-										echo "	</div>";
-										echo "	<br />";
-										
-										if ($idAlbum != 'new')
-										{
-											$commentsPhoto = getCommentsPhoto($photo);
-											
-											echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
-											echo "	<div class=\"comment-list\">";
-											
-											foreach ($commentsPhoto as $comment)
+											$idAlbum = substr($photo, 0, 3);
+											$idPhoto = substr($photo, 4);
+											if ($idAlbum != $idTempAlbum)
 											{
-												echo "		<div class=\"comment\">";
-												echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
-												echo "			<br class=\"comment-clear\" />";
-												echo "			<div class=\"comment-content\">";
-												echo $comment['commentaire'];
-												echo "			</div>";
-												echo "		</div>";
-												echo "		<br />";
+												$album = getAlbumInfos($idAlbum);
+												$dateAlbum = $album['date'];
+												$titreAlbum = $album['titre'];
+												
+												$idTempAlbum = $idAlbum;
+											}
+										
+											$descriptionPhoto = getDescriptionPhoto($photo);
+										
+											echo "<li>";
+											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+											echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
+											echo "</a>";
+											echo "<div class=\"caption right-part\">";
+											
+											if ($idAlbum == 'new')
+											{
+												echo "<input type=\"button\" class=\"button\" value=\"Supprimer cette photo\" onclick=\"deletePhoto('".$idPhoto."');\" />";
+												echo "	<br />";
+												echo "	<br />";
 											}
 											
+											echo "	<div class=\"image-title\">".$titreAlbum."</div>";
+
+											if ($admin)
+											{
+												echo "<br /><textarea id=\"titre-text-".$idAlbum."\" class=\"comment-text\" rows=\"1\">".str_replace("<br />", "\n", $titreAlbum)."</textarea><br />";
+												echo "<input type=\"button\" class=\"button\" value=\"Modifier le titre de l'album\" onclick=\"setTitreAlbum('".$idAlbum."');\" />";
+											}
+											
+											/**/
+											if (trim($descriptionPhoto) != "")
+												echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
+											/**/
+											if ($admin)
+											{
+												echo "<br /><textarea id=\"description-text-".$idPhoto."\" class=\"comment-text\" rows=\"2\">".str_replace("<br />", "\n", $descriptionPhoto)."</textarea><br />";
+												echo "<input type=\"button\" class=\"button\" value=\"Modifier la description\" onclick=\"setDescriptionPhoto('".$idPhoto."');\" />";
+												
+												if ($idAlbum == 'new' && trim($descriptionPhoto) == "")
+													$newAlbumHaveAllDescriptions = false;
+											}
+											/*
+											else
+											{
+												if (trim($descriptionPhoto) != "")
+													echo "	<div class=\"image-desc\">".$descriptionPhoto."</div>";
+											}
+											*/
+												
+											echo "	<div class=\"download\">";
+											echo "		<a href=\"photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
 											echo "	</div>";
-											echo "</div>";
-										}
-										echo "</li>";
-										
-										$i++;
-								}							
+											echo "	<br />";
+											
+											if ($idAlbum != 'new')
+											{
+												$commentsPhoto = getCommentsPhoto($photo);
+												
+												echo "	<div class=\"comment-title\">Commentaires (".count($commentsPhoto).")</div>";									
+												echo "	<div class=\"comment-list\">";
+												
+												foreach ($commentsPhoto as $comment)
+												{
+													echo "		<div class=\"comment\">";
+													echo "			<span class=\"comment-date gray\">Posté par </span><span class=\"comment-login orange\">".$comment['login']."</span><span class=\"comment-date gray\"> le ".$comment['date']." :</span>";
+													echo "			<br class=\"comment-clear\" />";
+													echo "			<div class=\"comment-content\">";
+													echo $comment['commentaire'];
+													echo "			</div>";
+													echo "		</div>";
+													echo "		<br />";
+												}
+												
+												echo "	</div>";
+												echo "</div>";
+											}
+											echo "</li>";
+											
+											$i++;
+										}	
+									}							
 								?>
 							</ul>
 							<a class="pageLink next" href="#" title="Page suivante"><span>&gt;&gt;</span></a>
@@ -370,7 +395,7 @@ $admin = (isset($_GET['admin']));
 									$('#site').fadeTo('fast', 0.0);
 									$('#site').hide();
 									$('#footer').hide();
-									$('#create-album').show();
+									$('#create-site').show();
 								}
 							
 								function displayNoAlbum()
@@ -385,6 +410,7 @@ $admin = (isset($_GET['admin']));
 								{
 									$('#site').fadeTo('fast', 0.0);
 									$('#site').hide();
+									$('#footer').hide();
 									$('#add-album').fadeTo('slow', 1.0);
 								}
 							
@@ -392,6 +418,9 @@ $admin = (isset($_GET['admin']));
 								{
 									$('#add-album').fadeTo('slow', 0.0);
 									$('#add-album').hide();
+									$('#no-album').hide();
+									$('#create-site').hide();
+									$('#footer').show();
 									$('#site').fadeTo('fast', 1.0);
 								}
 							
@@ -474,6 +503,48 @@ $admin = (isset($_GET['admin']));
 									window.location.reload();
 								}			
 
+								function setParametresSite()
+								{
+									$('#mail-admin-text').removeClass('error');
+									$('#pass-admin-text').removeClass('error');
+									$('#pass-admin-text-2').removeClass('error');
+									
+									if ($('#mail-admin-text').val() == '' || !isValidEmailAddress($('#mail-admin-text').val()))
+									{
+										$('#mail-admin-text').addClass('error');
+										return false;
+									}
+									else
+									{
+										if ($('#pass-admin-text').val() != $('#pass-admin-text-2').val())
+										{
+											$('#pass-admin-text').addClass('error');
+											$('#pass-admin-text-2').addClass('error');
+											return false;
+										}
+										else
+										{
+											getDatas('setParametresSite', 'resultSetParametresSite', 'mail=' + encode($('#mail-admin-text').val()) + '&pass=' + encode($('#pass-admin-text').val()));
+											//alert(resultSetParametresSite);
+											window.location.reload();
+										}
+									}
+								}			
+
+								function setTitreSite()
+								{
+									getDatas('setTitreSite', 'resultSetTitreSite', 'titre=' + encode($('#site-titre-text').val()));
+									//alert(resultSetTitreSite);
+									window.location.reload();
+								}			
+
+								function setFooterSite()
+								{
+									getDatas('setFooterSite', 'resultSetFooterSite', 'footer=' + encode($('#site-footer-text').val()));
+									//alert(resultSetFooterSite);
+									window.location.reload();
+								}			
+
 								function deletePhoto(photo)
 								{
 									if (confirm('Etes-vous certain de vouloir supprimer cette photo ?'))
@@ -549,7 +620,17 @@ $admin = (isset($_GET['admin']));
 				</div>
 			</div>
 		</div>
-		<div id="footer">Timothé est né le 27 janvier 2011 à 2h17 à Nantes. <br />Il mesurait alors 51,5 cm et pesait 3 kg 450. <br />Le plus beau bébé du monde...</div>
+		<div id="footer">		
+			<?php
+				$footer = getFooterSite();
+				echo $footer;
+				if ($admin)
+				{
+					echo "<br /><textarea id=\"site-footer-text\" class=\"comment-text\" style=\"text-align:center;\" rows=\"4\">".str_replace("<br />", "\n", $footer)."</textarea><br />";
+					echo "<input type=\"button\" class=\"button\" value=\"Modifier le pied de page\" onclick=\"setFooterSite();\" />";
+				}
+			?>
+		</div>
 		<script type="text/javascript">
 			var gallery;
 			jQuery(document).ready(function($) {
@@ -687,15 +768,29 @@ $admin = (isset($_GET['admin']));
 			}
 			
 			<?php 
-				if (!$havePhotos)
+				if (!$no_params)
+				{
+					if (!$havePhotos)
+					{
+						if ($admin)
+						{
+							echo "displayAddAlbum();";
+							echo "displaySite = function()";
+							echo "{";
+							echo "	return false;";
+							echo "}";
+						}
+						else
+						{
+							echo "displayNoAlbum();";
+						}
+					}
+				}
+				else
 				{
 					if ($admin)
 					{
-						echo "displayAddAlbum();";
-						echo "displaySite = function()";
-						echo "{";
-						echo "	return false;";
-						echo "}";
+						echo "displayCreateSite();";
 					}
 					else
 					{

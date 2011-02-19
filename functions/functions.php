@@ -1,15 +1,19 @@
 <?php
 
-//Envoi de mails :
-$email_from = "jbanguillot@yahoo.fr";
-define('MAIL_ADMIN',$email_from);
-$urlSendMail = 'http://int-musicdestock.fr/radioclashMailing/sendMail.php';
-define('URL_SEND_MAIL',$urlSendMail);
-//Url du site :
-define('URL_SITE',"http://divag.parishq.net/Timothe/");
-//Dossier des mails :
-define('PATH_MAIL',"mails/");
+if(!file_exists("site/vars.php") && !file_exists("../site/vars.php"))
+{
+	$no_params = true;
+}
+else
+{
+	$no_params = false;
 
+	if(file_exists("../site/vars.php"))
+		include("../site/vars.php");
+	if(file_exists("site/vars.php"))
+		include("site/vars.php");
+		
+}
 function decode($value)
 {
 	return str_replace("\n", "<br />", str_replace("\'", "'", utf8_decode($value)));
@@ -374,6 +378,75 @@ function setDescriptionPhoto($idPhoto, $description)
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, utf8_encode($description));
+	fclose($fichier);
+	
+	return $nom_fichier;
+}
+
+function setTitreSite($titre)
+{
+	$nom_fichier = '../site/titre.txt';
+	
+	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+	fwrite($fichier, utf8_encode($titre));
+	fclose($fichier);
+	
+	return $nom_fichier;
+}
+
+function getTitreSite()
+{
+	$nom_fichier = 'site/titre.txt';
+	
+	if (file_exists($nom_fichier))
+		$contenu = @file_get_contents($nom_fichier);
+	
+	return decode($contenu);
+}
+
+function setFooterSite($footer)
+{
+	$nom_fichier = '../site/footer.txt';
+	
+	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+	fwrite($fichier, utf8_encode($footer));
+	fclose($fichier);
+	
+	return $nom_fichier;
+}
+
+function getFooterSite()
+{
+	$nom_fichier = 'site/footer.txt';
+	
+	if (file_exists($nom_fichier))
+		$contenu = @file_get_contents($nom_fichier);
+	
+	return decode($contenu);
+}
+
+function setParametresSite($mailAdmin, $passAdmin, $urlSite)
+{
+	$nom_fichier = '../site/vars.php';
+	
+	$contenu  = "<?php\n";
+	$contenu .= "//Administrateur :\n";
+	$contenu .= "\$mail_admin = \"".$mailAdmin."\";\n";
+	$contenu .= "\$pass_admin = \"".$passAdmin."\";\n";
+	$contenu .= "//Envoi de mails :\n";
+	$contenu .= "\$email_from = \"".$mailAdmin."\";\n";
+	$contenu .= "define('MAIL_ADMIN',\$email_from);\n";
+	//$contenu .= "\$urlSendMail = 'http://int-musicdestock.fr/radioclashMailing/sendMail.php';\n";
+	$contenu .= "\$urlSendMail = '".$urlSite."functions/sendMail.php';\n";
+	$contenu .= "define('URL_SEND_MAIL',\$urlSendMail);\n";
+	$contenu .= "//Url du site :\n";
+	$contenu .= "define('URL_SITE',\"".$urlSite."\");\n";
+	$contenu .= "//Dossier des mails :\n";
+	$contenu .= "define('PATH_MAIL',\"mails/\");\n";
+	$contenu .= "?>\n";	
+	
+	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+	fwrite($fichier, utf8_encode($contenu));
 	fclose($fichier);
 	
 	return $nom_fichier;

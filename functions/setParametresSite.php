@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['mail']) && isset($_POST['pass'])){	$fichier = setParametresSite($_POST["mail"], $_POST["pass"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["mail"].$_POST["pass"]."';";}?>

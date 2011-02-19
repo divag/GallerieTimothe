@@ -1,0 +1,1 @@
+<?phpinclude('functions.php');if (isset($_POST) && isset($_POST['titre'])){	$fichier = setTitreSite($_POST["titre"]);	//echo $_POST["variable"]." = '".$fichier.$_POST["titre"]."';";}?>
