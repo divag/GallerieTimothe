@@ -13,9 +13,9 @@ else
 {
 	$idPhoto = str_pad($_POST['ordre'], 3, "0", STR_PAD_LEFT);
 
-	$nom_fichier = '../photos/new/new_'.$idPhoto.'.JPG';
-	$nom_fichier_original = '../photos/new/new_'.$idPhoto.'_original.JPG';
-	$nom_fichier_thumb = '../photos/new/new_'.$idPhoto.'_thumb.JPG';
+	$nom_fichier = '../data/photos/new/new_'.$idPhoto.'.JPG';
+	$nom_fichier_original = '../data/photos/new/new_'.$idPhoto.'_original.JPG';
+	$nom_fichier_thumb = '../data/photos/new/new_'.$idPhoto.'_thumb.JPG';
 
 	//===============================
 	// ENREGISTREMENT  DU  FICHIER //

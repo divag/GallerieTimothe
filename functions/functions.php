@@ -1,6 +1,6 @@
 <?php
 
-if(!file_exists("site/vars.php") && !file_exists("../site/vars.php"))
+if(!file_exists("data/site/vars.php") && !file_exists("../data/site/vars.php"))
 {
 	$no_params = true;
 }
@@ -8,10 +8,10 @@ else
 {
 	$no_params = false;
 
-	if(file_exists("../site/vars.php"))
-		include("../site/vars.php");
-	if(file_exists("site/vars.php"))
-		include("site/vars.php");
+	if(file_exists("../data/site/vars.php"))
+		include("../data/site/vars.php");
+	if(file_exists("data/site/vars.php"))
+		include("data/site/vars.php");
 		
 }
 function decode($value)
@@ -21,7 +21,7 @@ function decode($value)
 
 function getLastNewPhotoId()
 {
-	$dirname = 'photos/new/';
+	$dirname = 'data/photos/new/';
 	$dir = opendir($dirname); 
 
 	$listePhotosAlbum = array();
@@ -42,7 +42,7 @@ function getLastNewPhotoId()
 
 function getNewAlbumId()
 {
-	$dirname = '../photos/';
+	$dirname = '../data/photos/';
 	$dir = opendir($dirname); 
 
 	$listeAlbums = array();
@@ -63,7 +63,7 @@ function getNewAlbumId()
 
 function getListePhotos($admin)
 {
-	$dirname = 'photos/';
+	$dirname = 'data/photos/';
 	$dir = opendir($dirname); 
 
 	$listeAlbums = array();
@@ -84,7 +84,7 @@ function getListePhotos($admin)
 		
 	foreach ($listeAlbums as $album)
 	{
-		$dirname = 'photos/'.$album.'/';
+		$dirname = 'data/photos/'.$album.'/';
 		$dir = opendir($dirname); 
 
 		$listePhotosAlbum = array();
@@ -113,7 +113,7 @@ function getListePhotos($admin)
 
 function getListePhotosForZip()
 {
-	$dirname = '../photos/';
+	$dirname = '../data/photos/';
 	$dir = opendir($dirname); 
 
 	$listeAlbums = array();
@@ -134,7 +134,7 @@ function getListePhotosForZip()
 		
 	foreach ($listeAlbums as $album)
 	{
-		$dirname = '../photos/'.$album.'/';
+		$dirname = '../data/photos/'.$album.'/';
 		$dir = opendir($dirname); 
 
 		$listePhotosAlbum = array();
@@ -165,7 +165,7 @@ function getAlbumInfos($idAlbum)
 {
 	if ($idAlbum != '')
 	{
-		$fichier = 'photos/'.$idAlbum.'/album.txt';
+		$fichier = 'data/photos/'.$idAlbum.'/album.txt';
 		$contenu = file_get_contents($fichier);
 		$array_album = explode(';', $contenu);
 		
@@ -178,7 +178,7 @@ function getAlbumInfos($idAlbum)
 
 function getAlbumInfosFromFunctions($idAlbum)
 {
-	$fichier = '../photos/'.$idAlbum.'/album.txt';
+	$fichier = '../data/photos/'.$idAlbum.'/album.txt';
 	$contenu = file_get_contents($fichier);
 	$array_album = explode(';', $contenu);
 	
@@ -190,7 +190,7 @@ function getAlbumInfosFromFunctions($idAlbum)
 
 function getDescriptionPhoto($idPhoto)
 {
-	$fichier = 'photos/'.$idPhoto.'.txt';
+	$fichier = 'data/photos/'.$idPhoto.'.txt';
 	$contenu = @file_get_contents($fichier);
 	
 	return decode($contenu);
@@ -198,7 +198,7 @@ function getDescriptionPhoto($idPhoto)
 
 function getCommentsPhoto($idPhoto)
 {
-	$fichier = 'photos/'.$idPhoto.'_comments.txt';
+	$fichier = 'data/photos/'.$idPhoto.'_comments.txt';
 	$contenu = @file_get_contents($fichier);
 	
 	$list_comments = array();
@@ -226,7 +226,18 @@ function getCommentsPhoto($idPhoto)
 
 function setTitreAlbum($idAlbum, $titre)
 {
-	$nom_fichier = '../photos/'.$idAlbum.'/album.txt';
+	$nom_fichier = '../data/photos/'.$idAlbum.'/album.txt';
+	
+	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+	fwrite($fichier, utf8_encode(date('d/m/Y').';'.$titre));
+	fclose($fichier);
+	
+	return $nom_fichier;
+}
+
+function setTitreAlbumFromIndex($idAlbum, $titre)
+{
+	$nom_fichier = 'data/photos/'.$idAlbum.'/album.txt';
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, utf8_encode(date('d/m/Y').';'.$titre));
@@ -254,12 +265,12 @@ function publishAlbum()
 	// - Renommage des fichiers, en bouchant les trous :
 	renameAllAlbumPhotos('new', $newAlbumId);
 	// - Renommage du dossier de l'album :
-	rename("../photos/new", "../photos/".$newAlbumId);
+	rename("../data/photos/new", "../data/photos/".$newAlbumId);
 
 	//On prépare le prochain nouvel album :
 	//=====================================
 	// - Le dossier "new" doit être présent et vide
-	mkdir("../photos/new", 0777);
+	mkdir("../data/photos/new");
 	// - On donne le titre "Nouvel album sans titre" pour le dossier "new"
 	setTitreAlbum('new', 'Nouvel album sans titre');
 	
@@ -277,7 +288,7 @@ function generateZip()
 	include('createzip.inc.php');
 	
 	// Creation du nom du fichier zip
-	$nomFichierZip = '../photos/PhotosTimothe.zip';
+	$nomFichierZip = '../data/photos/PhotosTimothe.zip';
 
 	// Si le zip a déjà été généré il faut l"effacer de suite pour eviter de creer un zip 
 	// contenant le zip précédent
@@ -291,7 +302,7 @@ function generateZip()
 	
 	foreach ($listePhotos as $photo)
 	{
-		$fileContents = file_get_contents('../photos/'.str_replace('.JPG', '_original.JPG', $photo));
+		$fileContents = file_get_contents('../data/photos/'.str_replace('.JPG', '_original.JPG', $photo));
 		$fileName = substr($photo, 4);
 		$timotheZip -> addFile($fileContents, $fileName); 
 	}	
@@ -303,7 +314,7 @@ function generateZip()
 
 function sendAllMailsNewAlbum($idAlbum)
 {
-	$fichier = '../mails/mailing_list.txt';
+	$fichier = '../data/mails/mailing_list.txt';
 	$contenu = file_get_contents($fichier);
 	$array_mails = explode(';', $contenu);
 	
@@ -313,9 +324,6 @@ function sendAllMailsNewAlbum($idAlbum)
 			sendEmailFile(sendMailNewAlbum($idAlbum, $mail));
 	}
 }
-
-//sendAllMailsNewAlbum('001');
-//clearDir('../photos/001');
 
 function clearDir($dossier) 
 {
@@ -340,7 +348,7 @@ function clearDir($dossier)
 
 function renameAllAlbumPhotos($oldId, $newId)
 {
-	$dirname = '../photos/'.$oldId.'/';
+	$dirname = '../data/photos/'.$oldId.'/';
 	$dir = opendir($dirname); 
 
 	$listePhotosAlbum = array();
@@ -366,15 +374,15 @@ function renameAllAlbumPhotos($oldId, $newId)
 			$lastId = intval(substr($photo, 4, 3));
 		}
 	
-		$oldName = '../photos/'.$oldId.'/'.$photo;
-		$newName = '../photos/'.$oldId.'/'.$newId.'_'.str_pad($i, 3, "0", STR_PAD_LEFT).substr($photo, 7);
+		$oldName = '../data/photos/'.$oldId.'/'.$photo;
+		$newName = '../data/photos/'.$oldId.'/'.$newId.'_'.str_pad($i, 3, "0", STR_PAD_LEFT).substr($photo, 7);
 		rename($oldName, $newName);
 	}	
 }
 
 function setDescriptionPhoto($idPhoto, $description)
 {
-	$nom_fichier = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.txt';
+	$nom_fichier = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.txt';
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, utf8_encode($description));
@@ -385,7 +393,7 @@ function setDescriptionPhoto($idPhoto, $description)
 
 function setTitreSite($titre)
 {
-	$nom_fichier = '../site/titre.txt';
+	$nom_fichier = '../data/site/titre.txt';
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, utf8_encode($titre));
@@ -396,7 +404,7 @@ function setTitreSite($titre)
 
 function getTitreSite()
 {
-	$nom_fichier = 'site/titre.txt';
+	$nom_fichier = 'data/site/titre.txt';
 	
 	if (file_exists($nom_fichier))
 		$contenu = @file_get_contents($nom_fichier);
@@ -406,7 +414,7 @@ function getTitreSite()
 
 function setFooterSite($footer)
 {
-	$nom_fichier = '../site/footer.txt';
+	$nom_fichier = '../data/site/footer.txt';
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, utf8_encode($footer));
@@ -417,7 +425,7 @@ function setFooterSite($footer)
 
 function getFooterSite()
 {
-	$nom_fichier = 'site/footer.txt';
+	$nom_fichier = 'data/site/footer.txt';
 	
 	if (file_exists($nom_fichier))
 		$contenu = @file_get_contents($nom_fichier);
@@ -427,22 +435,21 @@ function getFooterSite()
 
 function setParametresSite($mailAdmin, $passAdmin, $urlSite)
 {
-	$nom_fichier = '../site/vars.php';
+	$nom_fichier = '../data/site/vars.php';
 	
 	$contenu  = "<?php\n";
 	$contenu .= "//Administrateur :\n";
 	$contenu .= "\$mail_admin = \"".$mailAdmin."\";\n";
 	$contenu .= "\$pass_admin = \"".$passAdmin."\";\n";
-	$contenu .= "//Envoi de mails :\n";
-	$contenu .= "\$email_from = \"".$mailAdmin."\";\n";
-	$contenu .= "define('MAIL_ADMIN',\$email_from);\n";
-	//$contenu .= "\$urlSendMail = 'http://int-musicdestock.fr/radioclashMailing/sendMail.php';\n";
-	$contenu .= "\$urlSendMail = '".$urlSite."functions/sendMail.php';\n";
-	$contenu .= "define('URL_SEND_MAIL',\$urlSendMail);\n";
 	$contenu .= "//Url du site :\n";
 	$contenu .= "define('URL_SITE',\"".$urlSite."\");\n";
 	$contenu .= "//Dossier des mails :\n";
-	$contenu .= "define('PATH_MAIL',\"mails/\");\n";
+	$contenu .= "define('PATH_MAIL',\"data/mails/\");\n";
+	$contenu .= "//Envoi de mails :\n";
+	$contenu .= "\$email_from = \"".$mailAdmin."\";\n";
+	$contenu .= "define('MAIL_ADMIN',\$email_from);\n";
+	$contenu .= "\$urlSendMail = URL_SITE.'functions/sendMail.php';\n";
+	$contenu .= "define('URL_SEND_MAIL',\$urlSendMail);\n";
 	$contenu .= "?>\n";	
 	
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
@@ -454,10 +461,10 @@ function setParametresSite($mailAdmin, $passAdmin, $urlSite)
 
 function deletePhoto($idPhoto)
 {
-	$nom_fichier 			 = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.JPG';
-	$nom_fichier_original 	 = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_original.JPG';
-	$nom_fichier_thumb 		 = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_thumb.JPG';
-	$nom_fichier_description = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.txt';
+	$nom_fichier 			 = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.JPG';
+	$nom_fichier_original 	 = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_original.JPG';
+	$nom_fichier_thumb 		 = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_thumb.JPG';
+	$nom_fichier_description = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'.txt';
 	
 	if (file_exists($nom_fichier))
 		unlink($nom_fichier);
@@ -475,7 +482,7 @@ function addComment($idPhoto, $login, $commentaire)
 {
 	$separator = "[;;;]";
 
-	$nom_fichier = '../photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_comments.txt';
+	$nom_fichier = '../data/photos/'.substr($idPhoto, 0, 3).'/'.$idPhoto.'_comments.txt';
 	
 	if (file_exists($nom_fichier))
 		$contenu = @file_get_contents($nom_fichier);
@@ -491,7 +498,7 @@ function addMail($mail)
 {
 	$separator = utf8_encode(";");
 
-	$nom_fichier = '../mails/mailing_list.txt';
+	$nom_fichier = '../data/mails/mailing_list.txt';
 	
 	if (file_exists($nom_fichier))
 		$contenu = @file_get_contents($nom_fichier);
@@ -507,6 +514,8 @@ function addMail($mail)
 		fclose($fichier);
 	}
 
+	chmod($nom_fichier, 0775);
+	
 	return $nom_fichier;
 }
 
@@ -514,7 +523,7 @@ function deleteMail($mail)
 {
 	$separator = utf8_encode(";");
 
-	$nom_fichier = 'mails/mailing_list.txt';
+	$nom_fichier = 'data/mails/mailing_list.txt';
 	
 	if (file_exists($nom_fichier))
 	{

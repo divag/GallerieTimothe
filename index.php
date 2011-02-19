@@ -3,9 +3,53 @@
 include('functions/functions.php');
 $admin = (isset($_GET['admin']));
 
+function getFolderErrors($folderName, $rights)
+{
+	$erreur_message = '';
+	if(!file_exists($folderName))
+ 		$erreur_message .= "<span style=\"color:red;\">Erreur : Veuillez créer le dossier \"".$folderName."\" à la racine de votre site.</span><br />";
+	else
+	{
+		@mkdir($folderName."/test");
+		if (!file_exists($folderName."/test"))
+			$erreur_message .= "<span style=\"color:red;\">Erreur : Le dossier \"".$folderName."\" n'a pas les droits nécessaires au bon fonctionnement du site. Il lui faut les droits \"".$rights."\".</span><br />";	
+		else
+			@rmdir($folderName."/test");
+	}
+	return $erreur_message;
+}
+
+if ($admin && $no_params)
+{
+	if(!file_exists("data"))
+ 		@mkdir("data", 0777);
+	
+	$erreur_initialisation = '';
+	$erreur_initialisation .= getFolderErrors('data', '777');
+}
+
 if (!$no_params)
 {
 	$titreSite = getTitreSite();
+}
+
+if ($erreur_initialisation != '')
+{
+	echo "<h3>".$erreur_initialisation."</h3>";
+	exit;
+}
+else
+{
+	if(!file_exists("data/site"))
+ 		@mkdir("data/site", 0775);
+	if(!file_exists("data/mails"))
+ 		@mkdir("data/mails", 0775);
+	if(!file_exists("data/photos"))
+ 		@mkdir("data/photos", 0775);
+	if(!file_exists("data/photos/new"))
+ 		@mkdir("data/photos/new", 0775);
+	if(!file_exists("data/photos/new/album.txt"))
+ 		setTitreAlbumFromIndex('new', 'Nouvel album sans titre');
 }
 
 ?>
@@ -258,7 +302,7 @@ if (!$no_params)
 							<a class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Enregistrer une autre adresse email" /><span>Enregistrer une autre adresse email</span></a>
 						</span>
 						<br />
-						<a href="photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
+						<a href="data/photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
 					</div>
 					<br class="clear" />
 					<!-- <h2>Nom de la gallerie...</h2> -->
@@ -296,8 +340,8 @@ if (!$no_params)
 											$descriptionPhoto = getDescriptionPhoto($photo);
 										
 											echo "<li>";
-											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
-											echo "	<img src=\"photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
+											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"data/photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+											echo "	<img src=\"data/photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
 											echo "</a>";
 											echo "<div class=\"caption right-part\">";
 											
@@ -337,7 +381,7 @@ if (!$no_params)
 											*/
 												
 											echo "	<div class=\"download\">";
-											echo "		<a href=\"photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
+											echo "		<a href=\"data/photos/".$photo."_original.JPG\">T&eacute;l&eacute;charger l'original</a>";
 											echo "	</div>";
 											echo "	<br />";
 											
@@ -524,7 +568,7 @@ if (!$no_params)
 										}
 										else
 										{
-											getDatas('setParametresSite', 'resultSetParametresSite', 'mail=' + encode($('#mail-admin-text').val()) + '&pass=' + encode($('#pass-admin-text').val()));
+											getDatas('setParametresSite', 'resultSetParametresSite', 'mail=' + encode($('#mail-admin-text').val()) + '&pass=' + encode($('#pass-admin-text').val()) + '&url=' + urlBase);
 											//alert(resultSetParametresSite);
 											window.location.reload();
 										}
