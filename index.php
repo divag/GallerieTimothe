@@ -2,6 +2,8 @@
 
 include('functions/functions.php');
 $admin = (isset($_GET['admin']));
+if ($admin)
+	$admin_code = $_GET['admin'];
 
 function getFolderErrors($folderName, $rights)
 {
@@ -31,6 +33,19 @@ if ($admin && $no_params)
 if (!$no_params)
 {
 	$titreSite = getTitreSite();
+	
+	if ($admin)
+	{
+		include("data/site/vars.php");
+		$crypted = base64_encode(crypt($mail_admin, $pass_admin));
+		 if ($admin_code != $crypted)
+		{
+			echo "<script>";
+			echo "window.location.href = '".URL_SITE."admin/';";
+			echo "</script>";
+			exit;
+		}
+	}
 }
 
 if ($erreur_initialisation != '')
@@ -84,6 +99,10 @@ else
 			var debug = <?php echo (isset($_GET['debug']) ? 'true' : 'false') ?>;
 			var admin = <?php echo ($admin ? 'true' : 'false') ?>;
 			var noParams = <?php echo ($no_params ? 'true' : 'false') ?>;
+			<?php
+				if ($admin)
+					echo "var admin_code = '".$admin_code."';";
+			?>
 		</script>
 	</head>
 	<body>
@@ -247,7 +266,7 @@ else
 							setInterval(function() {
 								if ($('#files tr').length == 0)
 								{
-									window.location.href = urlBase + '?admin';
+									window.location.href = urlBase + '?admin=' + admin_code;
 								}
 							}, 500);
 						}
@@ -569,8 +588,7 @@ else
 										else
 										{
 											getDatas('setParametresSite', 'resultSetParametresSite', 'mail=' + encode($('#mail-admin-text').val()) + '&pass=' + encode($('#pass-admin-text').val()) + '&url=' + urlBase);
-											//alert(resultSetParametresSite);
-											window.location.reload();
+											window.location.href = urlBase + '?admin=' + resultSetParametresSite;
 										}
 									}
 								}			
@@ -595,7 +613,7 @@ else
 									{
 										getDatas('deletePhoto', 'resultDeletePhoto', 'photo=' + photo);
 										//alert(resultSetDescriptionPhoto);
-										window.location.href = urlBase + '?admin';
+										window.location.href = urlBase + '?admin=' + admin_code;
 									}
 								}			
 

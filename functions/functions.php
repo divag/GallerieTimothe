@@ -1,5 +1,7 @@
 <?php
 
+//clearDir('../data');
+
 if(!file_exists("data/site/vars.php") && !file_exists("../data/site/vars.php"))
 {
 	$no_params = true;
@@ -325,6 +327,11 @@ function sendAllMailsNewAlbum($idAlbum)
 	}
 }
 
+function sendMailAdmin($mail, $pass)
+{
+	sendEmailFile(sendMailPassAdmin($mail, $pass));
+}
+
 function clearDir($dossier) 
 {
 	$ouverture=@opendir($dossier);
@@ -456,7 +463,9 @@ function setParametresSite($mailAdmin, $passAdmin, $urlSite)
 	fwrite($fichier, utf8_encode($contenu));
 	fclose($fichier);
 	
-	return $nom_fichier;
+	$crypted = base64_encode(crypt($mailAdmin, $passAdmin));
+	
+	return $crypted;
 }
 
 function deletePhoto($idPhoto)
@@ -627,7 +636,33 @@ function deleteMail($mail)
 	</p>";
 	
 	return generateEmailFile($mail,"De nouvelles photos de Timothé sont en ligne !",utf8_decode($mail_text),utf8_decode($mail_html));
-	//return generateEmailFile($mail,utf8_decode("De nouvelles photos de Timothé sont en ligne !"),utf8_decode($mail_text),utf8_decode($mail_html));
+ }
+ 
+ /*
+  * Function sendMailNewAlbum permet d'envoyer le mail d'une newsletter à un utilisateur
+  * @params : $idAlbum = ID de l'album à annoncer dans la newsletter
+  * @params : $mail = email de l'utilisateur
+  */
+ function sendMailPassAdmin($mail, $pass)
+ {
+ 	$mail_text  = "Voici vos informations de connexion :\r\n\r\n";
+	$mail_text .= " - Site         : ".URL_SITE."admin/\r\n";
+	$mail_text .= " - Mail         : ".$mail."\r\n";
+	$mail_text .= " - Mot de passe : ".$pass."\r\n";
+	$mail_text .= "\r\n";
+	$mail_text .= "Bonne utilisation !\r\n";
+	
+	$mail_html="Voici vos informations de connexion :
+	 <ul>
+			<li>Site : ".URL_SITE."admin/</li>
+			<li>Mail : ".$mail."</li>
+			<li>Mot de passe : ".$pass."</li>
+	</ul>
+	<p>
+		Bonne utilisation !
+	</p>";
+	
+	return generateEmailFile($mail,"Votre gallerie : Informations de connexion",utf8_decode($mail_text),utf8_decode($mail_html));
  }
  
 /*
