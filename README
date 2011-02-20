@@ -3,4 +3,65 @@
 /** Galerie Timothe **/
 /*********************/
 
-Gallerie de photos en ligne.
+Private Photo Gallery customizable website.
+Create simply your own photo gallery website.
+
+Features :
+==========
+
+Installation :
+ - Very simple installation (upload on your server, and go to http://_your_site_url_/admin/)
+ - No database needed
+
+Administration :
+ - Customisable interface
+ - Drag and drop files to upload in your browser
+ - Create and publish your photo albums
+
+Photo Gallery :
+ - Automaticly created
+ - Includes keyboard shortcuts and diaporama
+ - Includes comments
+ - Includes automatic newsletter
+ - Includes automatic archive containind all the photos
+ 
+
+Credits :
+=========
+
+GallerificPlus jQuery Gallery by Matt Gifford AKA ColdFuMonkeh  :
+ - Site : http://www.mattgifford.co.uk/projects/gallerificplus/
+
+jQuery File Upload by blueimp :
+ - Site/Demo   : http://aquantum-demo.appspot.com/file-upload
+ - Code source : https://github.com/blueimp/jQuery-File-Upload
+
+Requirements :
+==============
+  - jQuery v. 1.5+
+  - jQuery UI v. 1.8+
+
+Browser Support (tested versions) :
+===================================
+  - Google Chrome - 7.0, 8.0, 9.0
+  - Apple Safari - 5.0 ¹
+  - Mozilla Firefox - 3.6
+  - Opera - 10.60 ², 11.00 ²
+  - Microsoft Internet Explorer 6.0 ², 7.0 ², 8.0 ², 9.0 ²
+¹ Drag & Drop is not supported on the Windows version of Safari.
+² MSIE and Opera have no support for Drag & Drop, multiple file selection or upload progress indication.
+
+License :
+=========
+Released under the MIT license:
+http://creativecommons.org/licenses/MIT/
+
+Source Code & Download :
+========================
+https://github.com/divag/GallerieTimothe
+
+Documentation :
+===============
+https://github.com/divag/GallerieTimothe/wiki
+
+ 
