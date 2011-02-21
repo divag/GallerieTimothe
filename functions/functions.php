@@ -83,7 +83,8 @@ function getListePhotos($admin)
 	
 	$listePhotos = array();
 	$i = 0;
-		
+	
+	//$isFirstAlbum = true;
 	foreach ($listeAlbums as $album)
 	{
 		$dirname = 'data/photos/'.$album.'/';
@@ -101,8 +102,19 @@ function getListePhotos($admin)
 
 		closedir($dir);
 		
-		sort($listePhotosAlbum);
-
+		/*
+		if ($isFirstAlbum)
+		{
+		*/
+			sort($listePhotosAlbum);
+		/*	$isFirstAlbum = false;
+		}
+		else
+		{
+			rsort($listePhotosAlbum);
+		}
+		*/
+		
 		foreach ($listePhotosAlbum as $photoAlbum)
 		{
 			$listePhotos[$i] = $photoAlbum;
@@ -484,6 +496,10 @@ function deletePhoto($idPhoto)
 	if (file_exists($nom_fichier_description))
 		unlink($nom_fichier_description);
 	
+	//S'il s'agit d'une photo publiée, on regénère le ZIP :
+	if (substr($idPhoto, 0, 3) != 'new')
+		generateZip();
+			
 	return $nom_fichier;
 }
 

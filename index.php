@@ -309,7 +309,7 @@ else
 					<div class="header">
 						<h1><a href=""><?php echo $titreSite ?></a></h1>
 						<div id="lastUpdate" <?php if ($idLastAlbum == 'new') echo "style=\"display:none;\"" ?>>
-							Mis à jour le <?php echo $dateLastAlbum ?> : <span>Ajout de l'album <b><?php echo $titreLastAlbum ?></b></span>
+							<span>Dernier album ajouté le <?php echo $dateLastAlbum ?> >> <b><?php echo $titreLastAlbum ?></b> <<</span>
 						</div>
 						<br />
 					</div>
@@ -364,7 +364,7 @@ else
 											echo "</a>";
 											echo "<div class=\"caption right-part\">";
 											
-											if ($idAlbum == 'new')
+											if ($admin)
 											{
 												echo "<input type=\"button\" class=\"button\" value=\"Supprimer cette photo\" onclick=\"deletePhoto('".$idPhoto."');\" />";
 												echo "	<br />";
