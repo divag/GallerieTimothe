@@ -328,7 +328,7 @@ else
 					<!-- Start Advanced Gallery Html Containers -->				
 					<div class="navigation-container">
 						<div id="thumbs" class="navigation">
-							<a class="pageLink prev" href="#" title="Page précédente"><span>&lt;&lt;</span></a>
+							<a class="pageLink prev" style="visibility: hidden;" href="#" title="Page précédente"></a>
 						
 							<ul class="thumbs noscript">
 								<?php
@@ -359,7 +359,7 @@ else
 											$descriptionPhoto = getDescriptionPhoto($photo);
 										
 											echo "<li>";
-											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" name=\"leaf\" href=\"data/photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" href=\"data/photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
 											echo "	<img src=\"data/photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
 											echo "</a>";
 											echo "<div class=\"caption right-part\">";
@@ -433,7 +433,7 @@ else
 									}							
 								?>
 							</ul>
-							<a class="pageLink next" href="#" title="Page suivante"><span>&gt;&gt;</span></a>
+							<a class="pageLink next" style="visibility: hidden;" href="#" title="Page suivante"></a
 						</div>
 					</div>
 					<div class="content">
