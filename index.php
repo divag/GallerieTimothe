@@ -742,14 +742,17 @@ else
 							//.html('Photo '+ (nextIndex+1) +' of '+ this.data.length);
 						this.$captionContainer.find('div.photo-index')
 							.html('Photo ' + (nextIndex+1) + ' / ' + this.data.length);
-													
+						
 						this.$captionContainer.find('#comment-photo')
 							.val(this.data[nextIndex].id);
-							
+						
 						initialiseComment(this.data[nextIndex].id);
 					},
 					onPageTransitionOut:       function(callback) {
-						this.fadeTo('fast', 0.0, callback);
+						this.hide();
+						this.fadeTo('fast', 0.0);
+						callback();
+						//this.fadeTo('fast', 0.0, callback);
 					},
 					onPageTransitionIn:        function() {
 						var prevPageLink = this.find('a.prev').css('visibility', 'hidden');
@@ -763,7 +766,8 @@ else
 						if (this.displayedPage < lastPage)
 							nextPageLink.css('visibility', 'visible');
 
-						this.fadeTo('fast', 1.0);
+						this.show();
+						this.fadeTo('slow', 1.0);
 					}
 				});
 

@@ -467,8 +467,7 @@ function setParametresSite($mailAdmin, $passAdmin, $urlSite)
 	$contenu .= "//Envoi de mails :\n";
 	$contenu .= "\$email_from = \"".$mailAdmin."\";\n";
 	$contenu .= "define('MAIL_ADMIN',\$email_from);\n";
-	$contenu .= "\$urlSendMail = 'http://int-musicdestock.fr/radioclashMailing/sendMail.php';\n";
-	//$contenu .= "\$urlSendMail = URL_SITE.'functions/sendMail.php';\n";
+	$contenu .= "\$urlSendMail = URL_SITE.'functions/sendMail.php';\n";
 	$contenu .= "define('URL_SEND_MAIL',\$urlSendMail);\n";
 	$contenu .= "?>\n";	
 	
