@@ -330,7 +330,7 @@ else
 						<div id="thumbs" class="navigation">
 							<a class="pageLink prev" style="visibility: hidden;" href="#" title="Page précédente"></a>
 						
-							<ul class="thumbs noscript">
+								<ul class="thumbs noscript">
 								<?php
 									if (!$no_params)
 									{
@@ -343,6 +343,13 @@ else
 										$i = 0;
 										$newAlbumHaveAllDescriptions = true;
 										
+										$scriptAlbumShortcuts = "var albumShortcuts = new Array();\n";
+
+										$scriptAlbumShortcuts .= "albumShortcuts['".$idAlbum."'] = new Array();\n";
+										$idPrevAlbumPhoto = substr($listePhotos[0], 4);
+										$idLastAlbum = $idAlbum;
+										$idLastAlbumPhoto = $idPrevAlbumPhoto;
+
 										foreach ($listePhotos as $photo)
 										{
 											$idAlbum = substr($photo, 0, 3);
@@ -352,6 +359,13 @@ else
 												$album = getAlbumInfos($idAlbum);
 												$dateAlbum = $album['date'];
 												$titreAlbum = $album['titre'];
+																								
+												$scriptAlbumShortcuts .= "albumShortcuts['".$idAlbum."'] = new Array();\n";
+												$scriptAlbumShortcuts .= "albumShortcuts['".$idAlbum."']['prev'] = '".$idPrevAlbumPhoto."';\n";
+												$scriptAlbumShortcuts .= "albumShortcuts['".$idTempAlbum."']['next'] = '".$idPhoto."';\n";
+												$idPrevAlbumPhoto = $idPhoto;
+												$idFirstAlbum = $idAlbum;
+												$idFirstAlbumPhoto = $idPhoto;
 												
 												$idTempAlbum = $idAlbum;
 											}
@@ -359,10 +373,14 @@ else
 											$descriptionPhoto = getDescriptionPhoto($photo);
 										
 											echo "<li>";
-											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" href=\"data/photos/".$photo.".JPG\" id=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
+											echo "<a class=\"thumb".($admin && trim($descriptionPhoto) == "" ? " no-description" : "").($admin && trim($descriptionPhoto) != "" ? " have-description" : "").($idAlbum == "new" ? " new" : "")."\" href=\"data/photos/".$photo.".JPG\" name=\"".$idPhoto."\" title=\"".$titreAlbum."\">";
 											echo "	<img src=\"data/photos/".$photo."_thumb.JPG\" alt=\"".$titreAlbum."\" />";
 											echo "</a>";
 											echo "<div class=\"caption right-part\">";
+											echo "<div class=\"album-shortcuts\">";
+											echo "	<a class=\"next-album ".$idAlbum."-next\" href=\"#\" onclick=\"var destination = albumShortcuts['".$idAlbum."']['prev'];this.href='#' + destination;$.galleriffic.gotoImage('#' + destination);\">&lsaquo; Album suivant</a>";
+											echo "	<a class=\"prev-album ".$idAlbum."-prev\" href=\"#\" onclick=\"var destination = albumShortcuts['".$idAlbum."']['next'];this.href='#' + destination;$.galleriffic.gotoImage('#' + destination);\">Album précédent &rsaquo;</a>";
+											echo "</div>";
 											
 											if ($admin)
 											{
@@ -430,12 +448,19 @@ else
 											
 											$i++;
 										}	
+										
+										$scriptAlbumShortcuts .= "$('a.".$idLastAlbum."-next').hide();\n";
+										$scriptAlbumShortcuts .= "$('a.".$idFirstAlbum."-prev').hide();\n";
+
 									}							
 								?>
 							</ul>
 							<a class="pageLink next" style="visibility: hidden;" href="#" title="Page suivante"></a
 						</div>
 					</div>
+					<script>
+						<?php echo $scriptAlbumShortcuts; ?>
+					</script>
 					<div class="content">
 						<br />
 						<div class="slideshow-container">
@@ -744,9 +769,9 @@ else
 							.html('Photo ' + (nextIndex+1) + ' / ' + this.data.length);
 						
 						this.$captionContainer.find('#comment-photo')
-							.val(this.data[nextIndex].id);
+							.val(this.data[nextIndex].hash);
 						
-						initialiseComment(this.data[nextIndex].id);
+						initialiseComment(this.data[nextIndex].hash);
 					},
 					onPageTransitionOut:       function(callback) {
 						this.hide();
@@ -782,7 +807,7 @@ else
 					gallery.nextPage();
 					e.preventDefault();
 				});
-
+				
 				/****************************************************************************************/
 
 				/**** Functions to support integration of galleriffic with the jquery.history plugin ****/
@@ -822,6 +847,7 @@ else
 				});
 
 				/****************************************************************************************/
+								
 				$("#debug").delay( 2000 ).queue(function(){
 					writeDebug('Appel après delai :');
 					changeCaptionHeight(gallery);

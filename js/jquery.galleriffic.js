@@ -143,7 +143,7 @@
 				var $li = ( typeof listItem === "string" ) ? $(listItem) : listItem;				
 				var $aThumb = $li.find('a.thumb');
 				var slideUrl = $aThumb.attr('href');
-				var id = $aThumb.attr('id');
+				//var id = $aThumb.attr('id');
 				var title = $aThumb.attr('title');
 				var $caption = $li.find('.caption').remove();
 				var hash = $aThumb.attr('name');
@@ -161,7 +161,6 @@
 					position = this.data.length;
 				
 				var imageData = {
-					id:id,
 					title:title,
 					slideUrl:slideUrl,
 					caption:$caption,

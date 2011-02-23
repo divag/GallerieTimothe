@@ -177,3 +177,14 @@ td.file_upload_order {
 	display:none;
 }
 
+.prev-album {
+	float: right;
+}
+
+.album-shortcuts {
+	position:absolute;
+	width:100%;
+	top:-25px;
+}
+
+
