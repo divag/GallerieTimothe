@@ -10,10 +10,10 @@ else
 {
 	$no_params = false;
 
-	if(file_exists("../data/site/vars.php"))
-		include("../data/site/vars.php");
 	if(file_exists("data/site/vars.php"))
 		include("data/site/vars.php");
+	if(file_exists("../data/site/vars.php"))
+		include("../data/site/vars.php");
 		
 }
 function decode($value)
@@ -235,6 +235,35 @@ function getCommentsPhoto($idPhoto)
 			$i_comments++;
 		}
 	}
+	return $list_comments;
+}
+
+function getLastComments()
+{
+	$fichier = 'data/site/last_comments.txt';
+	$contenu = @file_get_contents($fichier);
+	
+	$list_comments = array();
+
+	if ($contenu != '')
+	{
+		$separator = "[;;;]";
+
+		$array_comments = explode($separator, $contenu);
+		
+		$i_comments = 0;
+		for ($i=0; $i<count($array_comments)-1; $i = $i + 3)
+		{
+			$comment = array();
+			$comment['photo'] = decode($array_comments[$i]);
+			$comment['login'] = decode($array_comments[$i+1]);
+			$comment['date'] = decode($array_comments[$i+2]);
+			
+			$list_comments[$i_comments] = $comment;
+			$i_comments++;
+		}
+	}
+
 	return $list_comments;
 }
 
@@ -514,6 +543,24 @@ function addComment($idPhoto, $login, $commentaire)
 
 	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
 	fwrite($fichier, $contenu.utf8_encode($login.$separator.date("d/m/Y").$separator.$commentaire.$separator));
+	fclose($fichier);
+	
+	addLastComment($idPhoto, $login);
+	
+	return $nom_fichier;
+}
+
+function addLastComment($idPhoto, $login)
+{
+	$separator = "[;;;]";
+
+	$nom_fichier = '../data/site/last_comments.txt';
+	
+	if (file_exists($nom_fichier))
+		$contenu = @file_get_contents($nom_fichier);
+
+	$fichier = fopen($nom_fichier, 'w') or die("can't open file");
+	fwrite($fichier, utf8_encode($idPhoto.$separator.$login.$separator.date("d/m/Y").$separator).$contenu);
 	fclose($fichier);
 	
 	return $nom_fichier;

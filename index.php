@@ -309,9 +309,8 @@ else
 					<div class="header">
 						<h1><a href=""><?php echo $titreSite ?></a></h1>
 						<div id="lastUpdate" <?php if ($idLastAlbum == 'new') echo "style=\"display:none;\"" ?>>
-							<span>Dernier album ajouté le <?php echo $dateLastAlbum ?> >> <b><?php echo $titreLastAlbum ?></b> <<</span>
+							<span>Dernier album ajouté le <?php echo $dateLastAlbum ?> : &lsaquo;&lsaquo; <b><?php echo $titreLastAlbum ?></b> &rsaquo;&rsaquo;</span>
 						</div>
-						<br />
 					</div>
 					<div class="links" <?php if ($admin) echo "style=\"display:none;\"" ?>>
 						<a id="linkMail" class="mailLink" onclick="initialiseEmail();"><img src="css/mail.gif" alt="Recevoir un mail quand il y a du nouveau" /><span>Recevoir un mail quand il y a du nouveau</span></a>
@@ -324,6 +323,30 @@ else
 						<a href="data/photos/PhotosTimothe.zip" class="zipLink"><img src="css/zip.gif" alt="T&eacute;l&eacute;charger toutes les photos" /><span>T&eacute;l&eacute;charger toutes les photos</span></a>
 					</div>
 					<br class="clear" />
+					<span>Derniers commentaires <span id="hideAllComments" style="display:none;">(<a title="Afficher uniquement les 5 derniers commentaires" onclick="$('#hideAllComments').hide();$('#brShowAllComments').hide();$('#allComments').hide();$('#showAllComments').fadeTo('slow', 1.0);">afficher uniquement les 5 derniers commentaires</a>)</span> :</span><br id="brShowAllComments" style="display:none;" />
+					<?php
+						$lastComments = getLastComments();
+						$nbLastComment = 0;
+						foreach ($lastComments as $lastComment)
+						{	
+							if ($nbLastComment != 0)
+								echo ", ";
+								
+							echo "<a href=\"#".$lastComment['photo']."\" onclick=\"$.galleriffic.gotoImage('#".$lastComment['photo']."');\">".$lastComment['login']."</a>";
+							//echo "<a href=\"#".$lastComment['photo']."\" onclick=\"$.galleriffic.gotoImage('#".$lastComment['photo']."');\">".$lastComment['login']." <span class=\"comment-date gray\">(le ".$lastComment['date'].")</span></a>";
+							$nbLastComment++;
+							
+							if ($nbLastComment == 5)
+							{
+								echo "</span><span id=\"allComments\" style=\"display:none;\">";
+							}
+						}
+					?>
+					</span>
+					<span id="showAllComments">(<a title="Voir la liste complète des commentaires" onclick="$('#showAllComments').hide();$('#hideAllComments').fadeTo('fast', 1.0);$('#brShowAllComments').show();$('#allComments').fadeTo('slow', 1.0);">...</a>)</span>
+					
+					<br />
+					<br />
 					<!-- <h2>Nom de la gallerie...</h2> -->
 					<!-- Start Advanced Gallery Html Containers -->				
 					<div class="navigation-container">

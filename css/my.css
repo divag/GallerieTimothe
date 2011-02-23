@@ -1,3 +1,7 @@
+a {
+	cursor:pointer;
+}
+
 .zipLink, .mailLink {
     border-width:0px;	
 	cursor:pointer;
