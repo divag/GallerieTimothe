@@ -71,6 +71,9 @@ else
 <html>
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+		<meta http-equiv="Expires" content="0" />
 		<title><?php echo $titreSite ?></title>
 		<link rel="stylesheet" href="css/basic.css" type="text/css" />
 		<link rel="stylesheet" href="css/galleriffic-5.css" type="text/css" />
